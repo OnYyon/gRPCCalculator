@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package orchestrator;
+option go_package = "github.com/OnYyon/gRPCCalculator/proto";
+
+service Orchestrator {
+    rpc AddNewExpression (ExpressionID) returns (ResponseID);
+    rpc GetExpressionByID (ExpressionID) returns (Expression);
+    rpc GetAllExpressions (Empty) returns (ExpressionsList);
+}
+
+message Empty {}
+
+message ExpressionID {
+    string expression = 1;
+}
+
+message ResponseID {
+    string id = 1;
+}
+
+message Expression {
+    string id = 1;
+    string status = 2;
+    string result = 3;
+}
+
+message ExpressionsList {
+    repeated Expression expressions = 1;  
+}
+
+// TODO: Make handlers for iternal services

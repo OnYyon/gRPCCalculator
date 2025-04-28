@@ -8,13 +8,7 @@ import (
 )
 
 type serverAPI struct {
-	// Its plug for test
 	proto.UnimplementedOrchestratorServer
-	Transport
-}
-
-type Transport interface {
-	TransportTasks(proto.Task) proto.Task
 }
 
 func RegisterOrchestratorServer(gRPC *grpc.Server) {
@@ -25,10 +19,16 @@ func RegisterOrchestratorServer(gRPC *grpc.Server) {
 func (s *serverAPI) TransportTasks(
 	stream grpc.BidiStreamingServer[proto.Task, proto.Task],
 ) error {
-	req, err := stream.Recv()
-	if err != nil {
-		return err
+	task := &proto.Task{
+		ID:           "1",
+		Arg1:         "2",
+		Arg2:         "2",
+		Operation:    "+",
+		ExpressionID: "1",
 	}
-	fmt.Println(req)
+	if err := stream.Send(task); err != nil {
+		panic("error!")
+	}
+	fmt.Printf("recieve %v", task)
 	return nil
 }

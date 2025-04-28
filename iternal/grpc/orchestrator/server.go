@@ -1,7 +1,6 @@
 package orchestrator
 
 import (
-	"context"
 	"fmt"
 
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
@@ -9,24 +8,27 @@ import (
 )
 
 type serverAPI struct {
+	// Its plug for test
 	proto.UnimplementedOrchestratorServer
+	Transport
+}
+
+type Transport interface {
+	TransportTasks(proto.Task) proto.Task
 }
 
 func RegisterOrchestratorServer(gRPC *grpc.Server) {
 	proto.RegisterOrchestratorServer(gRPC, &serverAPI{})
 }
 
-func (s *serverAPI) AddNewExpression(ctx context.Context, in *proto.ExpressionID) (*proto.ResponseID, error) {
-	fmt.Println(in)
-	return nil, nil
-}
-
-func (s *serverAPI) GetExpressionByID(ctx context.Context, in *proto.ExpressionID) (*proto.Expression, error) {
-	fmt.Println(in)
-	return nil, nil
-}
-
-func (s *serverAPI) GetAllExpressions(ctx context.Context, in *proto.Empty) (*proto.ExpressionsList, error) {
-	fmt.Println(in)
-	return nil, nil
+// TODO: доделать логику
+func (s *serverAPI) TransportTasks(
+	stream grpc.BidiStreamingServer[proto.Task, proto.Task],
+) error {
+	req, err := stream.Recv()
+	if err != nil {
+		return err
+	}
+	fmt.Println(req)
+	return nil
 }

@@ -19,18 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Orchestrator_AddNewExpression_FullMethodName  = "/orchestrator.Orchestrator/AddNewExpression"
-	Orchestrator_GetExpressionByID_FullMethodName = "/orchestrator.Orchestrator/GetExpressionByID"
-	Orchestrator_GetAllExpressions_FullMethodName = "/orchestrator.Orchestrator/GetAllExpressions"
+	Orchestrator_TransportTasks_FullMethodName = "/orchestrator.Orchestrator/TransportTasks"
 )
 
 // OrchestratorClient is the client API for Orchestrator service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// TODO: maybe change connection
 type OrchestratorClient interface {
-	AddNewExpression(ctx context.Context, in *ExpressionID, opts ...grpc.CallOption) (*ResponseID, error)
-	GetExpressionByID(ctx context.Context, in *ExpressionID, opts ...grpc.CallOption) (*Expression, error)
-	GetAllExpressions(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ExpressionsList, error)
+	TransportTasks(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error)
 }
 
 type orchestratorClient struct {
@@ -41,43 +39,26 @@ func NewOrchestratorClient(cc grpc.ClientConnInterface) OrchestratorClient {
 	return &orchestratorClient{cc}
 }
 
-func (c *orchestratorClient) AddNewExpression(ctx context.Context, in *ExpressionID, opts ...grpc.CallOption) (*ResponseID, error) {
+func (c *orchestratorClient) TransportTasks(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ResponseID)
-	err := c.cc.Invoke(ctx, Orchestrator_AddNewExpression_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Orchestrator_ServiceDesc.Streams[0], Orchestrator_TransportTasks_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[Task, Task]{ClientStream: stream}
+	return x, nil
 }
 
-func (c *orchestratorClient) GetExpressionByID(ctx context.Context, in *ExpressionID, opts ...grpc.CallOption) (*Expression, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Expression)
-	err := c.cc.Invoke(ctx, Orchestrator_GetExpressionByID_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *orchestratorClient) GetAllExpressions(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ExpressionsList, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ExpressionsList)
-	err := c.cc.Invoke(ctx, Orchestrator_GetAllExpressions_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Orchestrator_TransportTasksClient = grpc.BidiStreamingClient[Task, Task]
 
 // OrchestratorServer is the server API for Orchestrator service.
 // All implementations must embed UnimplementedOrchestratorServer
 // for forward compatibility.
+//
+// TODO: maybe change connection
 type OrchestratorServer interface {
-	AddNewExpression(context.Context, *ExpressionID) (*ResponseID, error)
-	GetExpressionByID(context.Context, *ExpressionID) (*Expression, error)
-	GetAllExpressions(context.Context, *Empty) (*ExpressionsList, error)
+	TransportTasks(grpc.BidiStreamingServer[Task, Task]) error
 	mustEmbedUnimplementedOrchestratorServer()
 }
 
@@ -88,14 +69,8 @@ type OrchestratorServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrchestratorServer struct{}
 
-func (UnimplementedOrchestratorServer) AddNewExpression(context.Context, *ExpressionID) (*ResponseID, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewExpression not implemented")
-}
-func (UnimplementedOrchestratorServer) GetExpressionByID(context.Context, *ExpressionID) (*Expression, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetExpressionByID not implemented")
-}
-func (UnimplementedOrchestratorServer) GetAllExpressions(context.Context, *Empty) (*ExpressionsList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllExpressions not implemented")
+func (UnimplementedOrchestratorServer) TransportTasks(grpc.BidiStreamingServer[Task, Task]) error {
+	return status.Errorf(codes.Unimplemented, "method TransportTasks not implemented")
 }
 func (UnimplementedOrchestratorServer) mustEmbedUnimplementedOrchestratorServer() {}
 func (UnimplementedOrchestratorServer) testEmbeddedByValue()                      {}
@@ -118,59 +93,12 @@ func RegisterOrchestratorServer(s grpc.ServiceRegistrar, srv OrchestratorServer)
 	s.RegisterService(&Orchestrator_ServiceDesc, srv)
 }
 
-func _Orchestrator_AddNewExpression_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExpressionID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrchestratorServer).AddNewExpression(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Orchestrator_AddNewExpression_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrchestratorServer).AddNewExpression(ctx, req.(*ExpressionID))
-	}
-	return interceptor(ctx, in, info, handler)
+func _Orchestrator_TransportTasks_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(OrchestratorServer).TransportTasks(&grpc.GenericServerStream[Task, Task]{ServerStream: stream})
 }
 
-func _Orchestrator_GetExpressionByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExpressionID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrchestratorServer).GetExpressionByID(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Orchestrator_GetExpressionByID_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrchestratorServer).GetExpressionByID(ctx, req.(*ExpressionID))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Orchestrator_GetAllExpressions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrchestratorServer).GetAllExpressions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Orchestrator_GetAllExpressions_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrchestratorServer).GetAllExpressions(ctx, req.(*Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Orchestrator_TransportTasksServer = grpc.BidiStreamingServer[Task, Task]
 
 // Orchestrator_ServiceDesc is the grpc.ServiceDesc for Orchestrator service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -178,20 +106,14 @@ func _Orchestrator_GetAllExpressions_Handler(srv interface{}, ctx context.Contex
 var Orchestrator_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "orchestrator.Orchestrator",
 	HandlerType: (*OrchestratorServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "AddNewExpression",
-			Handler:    _Orchestrator_AddNewExpression_Handler,
-		},
-		{
-			MethodName: "GetExpressionByID",
-			Handler:    _Orchestrator_GetExpressionByID_Handler,
-		},
-		{
-			MethodName: "GetAllExpressions",
-			Handler:    _Orchestrator_GetAllExpressions_Handler,
+			StreamName:    "TransportTasks",
+			Handler:       _Orchestrator_TransportTasks_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "orchestrator.proto",
 }

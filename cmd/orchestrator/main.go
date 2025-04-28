@@ -11,25 +11,21 @@ import (
 )
 
 func main() {
+	// TODO: загрузка конфигуряция из .env
+
 	host := "localhost"
 	port := "8080"
 
-	addr := fmt.Sprintf("%s:%s", host, port)
-	lis, err := net.Listen("tcp", addr) // будем ждать запросы по этому адресу
-
+	address := fmt.Sprintf("%s:%s", host, port)
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Println("error starting tcp listener: ", err)
-		os.Exit(1)
+		panic("dont start listen")
 	}
+	fmt.Println("starting listen on :8080")
 
-	log.Println("tcp listener started at port: ", port)
-	// создадим сервер grpc
 	grpcServer := grpc.NewServer()
-	// объект структуры, которая содержит реализацию
-	// серверной части GeometryService
-	// зарегистрируем нашу реализацию сервера
 	orchestrator.RegisterOrchestratorServer(grpcServer)
-	// запустим grpc сервер
+
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Println("error serving grpc: ", err)
 		os.Exit(1)

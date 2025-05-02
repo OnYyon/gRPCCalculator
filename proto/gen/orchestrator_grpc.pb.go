@@ -19,16 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Orchestrator_TransportTasks_FullMethodName = "/orchestrator.Orchestrator/TransportTasks"
+	Orchestrator_TaskStream_FullMethodName = "/orchestrator.Orchestrator/TaskStream"
 )
 
 // OrchestratorClient is the client API for Orchestrator service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// TODO: maybe change connection
 type OrchestratorClient interface {
-	TransportTasks(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error)
+	TaskStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error)
 }
 
 type orchestratorClient struct {
@@ -39,9 +37,9 @@ func NewOrchestratorClient(cc grpc.ClientConnInterface) OrchestratorClient {
 	return &orchestratorClient{cc}
 }
 
-func (c *orchestratorClient) TransportTasks(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error) {
+func (c *orchestratorClient) TaskStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Orchestrator_ServiceDesc.Streams[0], Orchestrator_TransportTasks_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Orchestrator_ServiceDesc.Streams[0], Orchestrator_TaskStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,15 +48,13 @@ func (c *orchestratorClient) TransportTasks(ctx context.Context, opts ...grpc.Ca
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Orchestrator_TransportTasksClient = grpc.BidiStreamingClient[Task, Task]
+type Orchestrator_TaskStreamClient = grpc.BidiStreamingClient[Task, Task]
 
 // OrchestratorServer is the server API for Orchestrator service.
 // All implementations must embed UnimplementedOrchestratorServer
 // for forward compatibility.
-//
-// TODO: maybe change connection
 type OrchestratorServer interface {
-	TransportTasks(grpc.BidiStreamingServer[Task, Task]) error
+	TaskStream(grpc.BidiStreamingServer[Task, Task]) error
 	mustEmbedUnimplementedOrchestratorServer()
 }
 
@@ -69,8 +65,8 @@ type OrchestratorServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrchestratorServer struct{}
 
-func (UnimplementedOrchestratorServer) TransportTasks(grpc.BidiStreamingServer[Task, Task]) error {
-	return status.Errorf(codes.Unimplemented, "method TransportTasks not implemented")
+func (UnimplementedOrchestratorServer) TaskStream(grpc.BidiStreamingServer[Task, Task]) error {
+	return status.Errorf(codes.Unimplemented, "method TaskStream not implemented")
 }
 func (UnimplementedOrchestratorServer) mustEmbedUnimplementedOrchestratorServer() {}
 func (UnimplementedOrchestratorServer) testEmbeddedByValue()                      {}
@@ -93,12 +89,12 @@ func RegisterOrchestratorServer(s grpc.ServiceRegistrar, srv OrchestratorServer)
 	s.RegisterService(&Orchestrator_ServiceDesc, srv)
 }
 
-func _Orchestrator_TransportTasks_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(OrchestratorServer).TransportTasks(&grpc.GenericServerStream[Task, Task]{ServerStream: stream})
+func _Orchestrator_TaskStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(OrchestratorServer).TaskStream(&grpc.GenericServerStream[Task, Task]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Orchestrator_TransportTasksServer = grpc.BidiStreamingServer[Task, Task]
+type Orchestrator_TaskStreamServer = grpc.BidiStreamingServer[Task, Task]
 
 // Orchestrator_ServiceDesc is the grpc.ServiceDesc for Orchestrator service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -109,8 +105,8 @@ var Orchestrator_ServiceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "TransportTasks",
-			Handler:       _Orchestrator_TransportTasks_Handler,
+			StreamName:    "TaskStream",
+			Handler:       _Orchestrator_TaskStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

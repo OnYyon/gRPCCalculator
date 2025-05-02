@@ -21,60 +21,22 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Empty struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Empty) Reset() {
-	*x = Empty{}
-	mi := &file_orchestrator_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Empty) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Empty) ProtoMessage() {}
-
-func (x *Empty) ProtoReflect() protoreflect.Message {
-	mi := &file_orchestrator_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Empty.ProtoReflect.Descriptor instead.
-func (*Empty) Descriptor() ([]byte, []int) {
-	return file_orchestrator_proto_rawDescGZIP(), []int{0}
-}
-
 type Task struct {
-	state     protoimpl.MessageState `protogen:"open.v1"`
-	ID        string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	Arg1      string                 `protobuf:"bytes,2,opt,name=Arg1,proto3" json:"Arg1,omitempty"`
-	Arg2      string                 `protobuf:"bytes,3,opt,name=Arg2,proto3" json:"Arg2,omitempty"`
-	Operation string                 `protobuf:"bytes,4,opt,name=Operation,proto3" json:"Operation,omitempty"`
-	Result    string                 `protobuf:"bytes,5,opt,name=Result,proto3" json:"Result,omitempty"`
-	// TODO: Integrate timestamp for task
-	OperationTime string `protobuf:"bytes,7,opt,name=OperationTime,proto3" json:"OperationTime,omitempty"`
-	ExpressionID  string `protobuf:"bytes,8,opt,name=ExpressionID,proto3" json:"ExpressionID,omitempty"`
-	Error         string `protobuf:"bytes,9,opt,name=Error,proto3" json:"Error,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Arg1          float64                `protobuf:"fixed64,2,opt,name=Arg1,proto3" json:"Arg1,omitempty"`
+	Arg2          float64                `protobuf:"fixed64,3,opt,name=Arg2,proto3" json:"Arg2,omitempty"`
+	Result        float64                `protobuf:"fixed64,5,opt,name=Result,proto3" json:"Result,omitempty"`
+	Operator      string                 `protobuf:"bytes,6,opt,name=Operator,proto3" json:"Operator,omitempty"`
+	ExpressionID  string                 `protobuf:"bytes,7,opt,name=ExpressionID,proto3" json:"ExpressionID,omitempty"`
+	Have          bool                   `protobuf:"varint,8,opt,name=have,proto3" json:"have,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Task) Reset() {
 	*x = Task{}
-	mi := &file_orchestrator_proto_msgTypes[1]
+	mi := &file_orchestrator_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -86,7 +48,7 @@ func (x *Task) String() string {
 func (*Task) ProtoMessage() {}
 
 func (x *Task) ProtoReflect() protoreflect.Message {
-	mi := &file_orchestrator_proto_msgTypes[1]
+	mi := &file_orchestrator_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -99,7 +61,7 @@ func (x *Task) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Task.ProtoReflect.Descriptor instead.
 func (*Task) Descriptor() ([]byte, []int) {
-	return file_orchestrator_proto_rawDescGZIP(), []int{1}
+	return file_orchestrator_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Task) GetID() string {
@@ -109,37 +71,30 @@ func (x *Task) GetID() string {
 	return ""
 }
 
-func (x *Task) GetArg1() string {
+func (x *Task) GetArg1() float64 {
 	if x != nil {
 		return x.Arg1
 	}
-	return ""
+	return 0
 }
 
-func (x *Task) GetArg2() string {
+func (x *Task) GetArg2() float64 {
 	if x != nil {
 		return x.Arg2
 	}
-	return ""
+	return 0
 }
 
-func (x *Task) GetOperation() string {
-	if x != nil {
-		return x.Operation
-	}
-	return ""
-}
-
-func (x *Task) GetResult() string {
+func (x *Task) GetResult() float64 {
 	if x != nil {
 		return x.Result
 	}
-	return ""
+	return 0
 }
 
-func (x *Task) GetOperationTime() string {
+func (x *Task) GetOperator() string {
 	if x != nil {
-		return x.OperationTime
+		return x.Operator
 	}
 	return ""
 }
@@ -151,30 +106,29 @@ func (x *Task) GetExpressionID() string {
 	return ""
 }
 
-func (x *Task) GetError() string {
+func (x *Task) GetHave() bool {
 	if x != nil {
-		return x.Error
+		return x.Have
 	}
-	return ""
+	return false
 }
 
 var File_orchestrator_proto protoreflect.FileDescriptor
 
 const file_orchestrator_proto_rawDesc = "" +
 	"\n" +
-	"\x12orchestrator.proto\x12\forchestrator\"\a\n" +
-	"\x05Empty\"\xd4\x01\n" +
+	"\x12orchestrator.proto\x12\forchestrator\"\xaa\x01\n" +
 	"\x04Task\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x12\n" +
-	"\x04Arg1\x18\x02 \x01(\tR\x04Arg1\x12\x12\n" +
-	"\x04Arg2\x18\x03 \x01(\tR\x04Arg2\x12\x1c\n" +
-	"\tOperation\x18\x04 \x01(\tR\tOperation\x12\x16\n" +
-	"\x06Result\x18\x05 \x01(\tR\x06Result\x12$\n" +
-	"\rOperationTime\x18\a \x01(\tR\rOperationTime\x12\"\n" +
-	"\fExpressionID\x18\b \x01(\tR\fExpressionID\x12\x14\n" +
-	"\x05Error\x18\t \x01(\tR\x05Error2L\n" +
-	"\fOrchestrator\x12<\n" +
-	"\x0eTransportTasks\x12\x12.orchestrator.Task\x1a\x12.orchestrator.Task(\x010\x01B(Z&github.com/OnYyon/gRPCCalculator/protob\x06proto3"
+	"\x04Arg1\x18\x02 \x01(\x01R\x04Arg1\x12\x12\n" +
+	"\x04Arg2\x18\x03 \x01(\x01R\x04Arg2\x12\x16\n" +
+	"\x06Result\x18\x05 \x01(\x01R\x06Result\x12\x1a\n" +
+	"\bOperator\x18\x06 \x01(\tR\bOperator\x12\"\n" +
+	"\fExpressionID\x18\a \x01(\tR\fExpressionID\x12\x12\n" +
+	"\x04have\x18\b \x01(\bR\x04have2H\n" +
+	"\fOrchestrator\x128\n" +
+	"\n" +
+	"TaskStream\x12\x12.orchestrator.Task\x1a\x12.orchestrator.Task(\x010\x01B(Z&github.com/OnYyon/gRPCCalculator/protob\x06proto3"
 
 var (
 	file_orchestrator_proto_rawDescOnce sync.Once
@@ -188,14 +142,13 @@ func file_orchestrator_proto_rawDescGZIP() []byte {
 	return file_orchestrator_proto_rawDescData
 }
 
-var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_orchestrator_proto_goTypes = []any{
-	(*Empty)(nil), // 0: orchestrator.Empty
-	(*Task)(nil),  // 1: orchestrator.Task
+	(*Task)(nil), // 0: orchestrator.Task
 }
 var file_orchestrator_proto_depIdxs = []int32{
-	1, // 0: orchestrator.Orchestrator.TransportTasks:input_type -> orchestrator.Task
-	1, // 1: orchestrator.Orchestrator.TransportTasks:output_type -> orchestrator.Task
+	0, // 0: orchestrator.Orchestrator.TaskStream:input_type -> orchestrator.Task
+	0, // 1: orchestrator.Orchestrator.TaskStream:output_type -> orchestrator.Task
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -214,7 +167,7 @@ func file_orchestrator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_orchestrator_proto_rawDesc), len(file_orchestrator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

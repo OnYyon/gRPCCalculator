@@ -12,6 +12,7 @@ import (
 
 func main() {
 	// TODO: загрузка конфигуряция из .env
+	// TODO: сделать логирование
 
 	host := "localhost"
 	port := "8080"
@@ -25,7 +26,9 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	orchestrator.RegisterOrchestratorServer(grpcServer)
-
+	// for i := 0; i < 102; i++ {
+	// 	s.AddTask(&proto.Task{ID: fmt.Sprint(i), Arg1: 1.0, Arg2: 2.0, Operator: "+", Have: true})
+	// }
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Println("error serving grpc: ", err)
 		os.Exit(1)

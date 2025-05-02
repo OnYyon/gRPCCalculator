@@ -1,51 +1,66 @@
 package orchestrator
 
 import (
+	"fmt"
+	"io"
+
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
 	"google.golang.org/grpc"
 )
 
 type serverAPI struct {
 	proto.UnimplementedOrchestratorServer
-	queque chan *proto.Task
+	// tasks chan *proto.Task
+	// results map[string][]float64
+	// mu sync.Mutex
 }
 
 func RegisterOrchestratorServer(gRPC *grpc.Server) {
 	proto.RegisterOrchestratorServer(gRPC, &serverAPI{})
 }
 
-// TODO: доделать логику
-func (s *serverAPI) TransportTasks(
-	stream grpc.BidiStreamingServer[proto.Task, proto.Task],
-) error {
-	sliceTests := []*proto.Task{
-		{
-			ID:           "1",
-			Arg1:         "2",
-			Arg2:         "2",
-			Operation:    "+",
-			ExpressionID: "1",
-		},
-		{
-			ID:           "2",
-			Arg1:         "3",
-			Arg2:         "3",
-			Operation:    "+",
-			ExpressionID: "2",
-		},
-		{
-			ID:           "3",
-			Arg1:         "4",
-			Arg2:         "4",
-			Operation:    "+",
-			ExpressionID: "3",
-		},
-	}
-
-	for _, task := range sliceTests {
-		if err := stream.Send(task); err != nil {
+func (s *serverAPI) TaskStream(stream grpc.BidiStreamingServer[proto.Task, proto.Task]) error {
+	for {
+		task, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
 			return err
 		}
+		// Обработка задачи
+		go func(t *proto.Task) {
+			// ... обработка задачи ...
+			fmt.Println(t)
+			// Отправка ответа
+			resp := &proto.Task{
+				ID: t.ID,
+			}
+			stream.Send(resp)
+		}(task)
 	}
-	return nil
 }
+
+// func RegisterOrchestratorServer(gRPC *grpc.Server) *serverAPI {
+// 	s := &serverAPI{
+// 		tasks: make(chan *proto.Task, 3),
+// 	}
+// 	proto.RegisterOrchestratorServer(gRPC, s)
+// 	return s
+// }
+
+// func (s *serverAPI) GetTask(ctx context.Context, _ *proto.TypeNil) (*proto.Task, error) {
+// 	select {
+// 	case task := <-s.tasks:
+// 		return task, nil
+// 	default:
+// 		return nil, errors.New("no tasks")
+// 	}
+// }
+
+// // NOTE: for tests may be
+// func (s *serverAPI) AddTask(task *proto.Task) {
+// 	s.mu.Lock()
+// 	defer s.mu.Unlock()
+// 	go func() { s.tasks <- task }()
+// }

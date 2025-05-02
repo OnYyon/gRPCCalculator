@@ -3,49 +3,109 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
+	"log"
+	"math/rand"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
 
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type quequeTask struct {
-	queque chan *proto.Task
+type WorkerClient struct {
+	client proto.OrchestratorClient
+	stream proto.Orchestrator_TaskStreamClient
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 }
 
-// For tests
-// Я думаю жто кастыль, но он работает
-// TODO: Попробыть способ Unary и по изучать еще как это реализоватья
-func main() {
-	numWorkers := 3
-	quequeTask := quequeTask{make(chan *proto.Task, numWorkers)}
-	for i := 0; i < numWorkers; i++ {
-		go quequeTask.StartAgent(i)
-	}
-	conn, err := grpc.NewClient("localhost:8080",
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewWorkerClient(conn *grpc.ClientConn) *WorkerClient {
+	ctx, cancel := context.WithCancel(context.Background())
+	client := proto.NewOrchestratorClient(conn)
+	stream, err := client.TaskStream(ctx)
 	if err != nil {
-		panic("erorr!")
+		log.Fatalf("Failed to create stream: %v", err)
+	}
+
+	return &WorkerClient{
+		client: client,
+		stream: stream,
+		ctx:    ctx,
+		cancel: cancel,
+	}
+}
+
+func (wc *WorkerClient) Start() {
+	// Горутина для чтения ответов от сервера
+	wc.wg.Add(1)
+	go func() {
+		defer wc.wg.Done()
+		for {
+			resp, err := wc.stream.Recv()
+			if err != nil {
+				log.Printf("Receive error: %v", err)
+				return
+			}
+			log.Printf("Received response for task %v", resp)
+		}
+	}()
+
+	// Горутина для отправки задач
+	wc.wg.Add(1)
+	go func() {
+		defer wc.wg.Done()
+		ticker := time.NewTicker(3 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				taskID := fmt.Sprintf("task-%d", rand.Intn(1000))
+				task := &proto.Task{
+					ID: taskID,
+				}
+
+				if err := wc.stream.Send(task); err != nil {
+					log.Printf("Send error: %v", err)
+					return
+				}
+				log.Printf("Sent task: %s", taskID)
+
+			case <-wc.ctx.Done():
+				return
+			}
+		}
+	}()
+}
+
+func (wc *WorkerClient) Stop() {
+	wc.cancel()
+	wc.wg.Wait()
+	if err := wc.stream.CloseSend(); err != nil {
+		log.Printf("Failed to close stream: %v", err)
+	}
+}
+
+func main() {
+	conn, err := grpc.NewClient("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect: %v", err)
 	}
 	defer conn.Close()
-	grpcClient := proto.NewOrchestratorClient(conn)
-	stream, err := grpcClient.TransportTasks(context.Background())
-	if err != nil {
-		panic("error in client/main.go")
-	}
 
-	for {
-		req, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		go func() { quequeTask.queque <- req }()
-	}
-}
+	worker := NewWorkerClient(conn)
+	worker.Start()
 
-func (q *quequeTask) StartAgent(num int) {
-	task := <-q.queque
-	fmt.Println(num, task)
+	// Ожидание сигнала для завершения
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	<-sigChan
 
+	worker.Stop()
+	log.Println("Worker stopped gracefully")
 }

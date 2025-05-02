@@ -3,21 +3,16 @@ syntax = "proto3";
 package orchestrator;
 option go_package = "github.com/OnYyon/gRPCCalculator/proto";
 
-// TODO: maybe change connection
 service Orchestrator {
-    rpc TransportTasks (stream Task) returns (stream Task);
+    rpc TaskStream(stream Task) returns (stream Task);
 }
-
-message Empty {}
 
 message Task {
     string ID = 1;
-    string Arg1 = 2;
-    string Arg2 = 3;
-    string Operation = 4;
-    string Result = 5;
-    // TODO: Integrate timestamp for task
-    string OperationTime = 7;
-    string ExpressionID = 8;
-    string Error = 9;
+    double Arg1 = 2;
+    double Arg2 = 3;
+    double Result = 5;
+    string Operator = 6;
+    string ExpressionID = 7;
+    bool have = 8;
 }

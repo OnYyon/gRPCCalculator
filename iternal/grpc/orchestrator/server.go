@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// TODO: race condition
 type serverAPI struct {
 	proto.UnimplementedOrchestratorServer
 	tasks   chan *proto.Task

@@ -4,91 +4,46 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
-	"time"
 
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type WorkerClient struct {
+type Worker struct {
 	client proto.OrchestratorClient
 	stream proto.Orchestrator_TaskStreamClient
-	ctx    context.Context
-	cancel context.CancelFunc
-	wg     sync.WaitGroup
 }
 
-func NewWorkerClient(conn *grpc.ClientConn) *WorkerClient {
-	ctx, cancel := context.WithCancel(context.Background())
+func NewWorkerClient(conn *grpc.ClientConn) *Worker {
 	client := proto.NewOrchestratorClient(conn)
-	stream, err := client.TaskStream(ctx)
+	stream, err := client.TaskStream(context.Background())
 	if err != nil {
-		log.Fatalf("Failed to create stream: %v", err)
+		log.Fatalf("Failed to establish stream: %v", err)
 	}
-
-	return &WorkerClient{
+	return &Worker{
 		client: client,
 		stream: stream,
-		ctx:    ctx,
-		cancel: cancel,
 	}
 }
 
-func (wc *WorkerClient) Start() {
-	// Горутина для чтения ответов от сервера
-	wc.wg.Add(1)
+func (w *Worker) Start() {
+	// Обработка задач
 	go func() {
-		defer wc.wg.Done()
 		for {
-			resp, err := wc.stream.Recv()
+			task, err := w.stream.Recv()
 			if err != nil {
-				log.Printf("Receive error: %v", err)
+				log.Printf("Failed to receive task: %v", err)
 				return
 			}
-			log.Printf("Received response for task %v", resp)
+			task.ID = "modifed"
+			// Отправка результата
+			w.stream.Send(task)
 		}
 	}()
-
-	// Горутина для отправки задач
-	wc.wg.Add(1)
-	go func() {
-		defer wc.wg.Done()
-		ticker := time.NewTicker(3 * time.Second)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-ticker.C:
-				taskID := fmt.Sprintf("task-%d", rand.Intn(1000))
-				task := &proto.Task{
-					ID: taskID,
-				}
-
-				if err := wc.stream.Send(task); err != nil {
-					log.Printf("Send error: %v", err)
-					return
-				}
-				log.Printf("Sent task: %s", taskID)
-
-			case <-wc.ctx.Done():
-				return
-			}
-		}
-	}()
-}
-
-func (wc *WorkerClient) Stop() {
-	wc.cancel()
-	wc.wg.Wait()
-	if err := wc.stream.CloseSend(); err != nil {
-		log.Printf("Failed to close stream: %v", err)
-	}
 }
 
 func main() {
@@ -99,13 +54,15 @@ func main() {
 	defer conn.Close()
 
 	worker := NewWorkerClient(conn)
-	worker.Start()
+	for i := 0; i < 3; i++ {
+		fmt.Println("worker start - ", i)
+		go worker.Start()
+	}
 
 	// Ожидание сигнала для завершения
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
-	worker.Stop()
 	log.Println("Worker stopped gracefully")
 }

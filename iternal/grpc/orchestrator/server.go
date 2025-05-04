@@ -10,57 +10,45 @@ import (
 
 type serverAPI struct {
 	proto.UnimplementedOrchestratorServer
-	// tasks chan *proto.Task
-	// results map[string][]float64
+	tasks   chan *proto.Task
+	results chan *proto.Task
 	// mu sync.Mutex
 }
 
 func RegisterOrchestratorServer(gRPC *grpc.Server) {
-	proto.RegisterOrchestratorServer(gRPC, &serverAPI{})
+	s := &serverAPI{
+		tasks:   make(chan *proto.Task, 100),
+		results: make(chan *proto.Task, 100),
+	}
+	go func() {
+		for i := 0; i < 5; i++ {
+			task := &proto.Task{ID: fmt.Sprint(i)}
+			s.tasks <- task
+		}
+	}()
+	proto.RegisterOrchestratorServer(gRPC, s)
 }
 
 func (s *serverAPI) TaskStream(stream grpc.BidiStreamingServer[proto.Task, proto.Task]) error {
+	go func() {
+		for task := range s.tasks {
+			if err := stream.Send(task); err != nil {
+				return
+			}
+		}
+	}()
+
 	for {
-		task, err := stream.Recv()
+		resp, err := stream.Recv()
 		if err == io.EOF {
+			close(s.results)
+			close(s.tasks)
 			return nil
 		}
 		if err != nil {
 			return err
 		}
-		// Обработка задачи
-		go func(t *proto.Task) {
-			// ... обработка задачи ...
-			fmt.Println(t)
-			// Отправка ответа
-			resp := &proto.Task{
-				ID: t.ID,
-			}
-			stream.Send(resp)
-		}(task)
+		s.results <- resp
+		fmt.Println(resp)
 	}
 }
-
-// func RegisterOrchestratorServer(gRPC *grpc.Server) *serverAPI {
-// 	s := &serverAPI{
-// 		tasks: make(chan *proto.Task, 3),
-// 	}
-// 	proto.RegisterOrchestratorServer(gRPC, s)
-// 	return s
-// }
-
-// func (s *serverAPI) GetTask(ctx context.Context, _ *proto.TypeNil) (*proto.Task, error) {
-// 	select {
-// 	case task := <-s.tasks:
-// 		return task, nil
-// 	default:
-// 		return nil, errors.New("no tasks")
-// 	}
-// }
-
-// // NOTE: for tests may be
-// func (s *serverAPI) AddTask(task *proto.Task) {
-// 	s.mu.Lock()
-// 	defer s.mu.Unlock()
-// 	go func() { s.tasks <- task }()
-// }

@@ -6,7 +6,8 @@ import (
 	"net"
 	"os"
 
-	"github.com/OnYyon/gRPCCalculator/iternal/grpc/orchestrator"
+	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
+	orchestratorGRPC "github.com/OnYyon/gRPCCalculator/internal/transport/grpc/orchestrator"
 	"google.golang.org/grpc"
 )
 
@@ -23,12 +24,9 @@ func main() {
 		panic("dont start listen")
 	}
 	fmt.Println("starting listen on :8080")
-
+	manager := manager.NewManager()
 	grpcServer := grpc.NewServer()
-	orchestrator.RegisterOrchestratorServer(grpcServer)
-	// for i := 0; i < 102; i++ {
-	// 	s.AddTask(&proto.Task{ID: fmt.Sprint(i), Arg1: 1.0, Arg2: 2.0, Operator: "+", Have: true})
-	// }
+	orchestratorGRPC.RegisterOrchestratorServer(grpcServer, manager)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Println("error serving grpc: ", err)
 		os.Exit(1)

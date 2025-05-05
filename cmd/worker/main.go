@@ -9,7 +9,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/OnYyon/gRPCCalculator/iternal/grpc/worker"
+	"github.com/OnYyon/gRPCCalculator/internal/transport/grpc/worker"
 )
 
 func main() {

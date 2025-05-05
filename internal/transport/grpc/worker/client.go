@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	services "github.com/OnYyon/gRPCCalculator/internal/services/calculate"
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -18,6 +19,7 @@ type Worker struct {
 	cancel context.CancelFunc
 }
 
+// TODO: сделать регаситратор нового worker
 func NewWorker() (*Worker, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -60,7 +62,7 @@ func (w *Worker) Run() error {
 				return fmt.Errorf("receive error: %w", err)
 			}
 
-			result := processTask(task)
+			result := services.ProcessTask(task)
 
 			if err := w.stream.Send(result); err != nil {
 				return fmt.Errorf("send error: %w", err)
@@ -84,9 +86,4 @@ func (w *Worker) cleanup() {
 			log.Printf("Error closing connection: %v", err)
 		}
 	}
-}
-
-func processTask(task *proto.Task) *proto.Task {
-	task.ID = "modifed"
-	return task
 }

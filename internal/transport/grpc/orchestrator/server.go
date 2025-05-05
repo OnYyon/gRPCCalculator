@@ -1,9 +1,10 @@
-package orchestrator
+package orchestratorGRPC
 
 import (
 	"fmt"
 	"io"
 
+	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
 	"google.golang.org/grpc"
 )
@@ -11,20 +12,19 @@ import (
 // TODO: race condition
 type serverAPI struct {
 	proto.UnimplementedOrchestratorServer
-	tasks   chan *proto.Task
-	results chan *proto.Task
+	manager *manager.Manager
 	// mu sync.Mutex
 }
 
-func RegisterOrchestratorServer(gRPC *grpc.Server) {
+func RegisterOrchestratorServer(gRPC *grpc.Server, manager *manager.Manager) {
 	s := &serverAPI{
-		tasks:   make(chan *proto.Task, 100),
-		results: make(chan *proto.Task, 100),
+		manager: manager,
 	}
+	// NOTE: for tests
 	go func() {
 		for i := 0; i < 5; i++ {
 			task := &proto.Task{ID: fmt.Sprint(i)}
-			s.tasks <- task
+			s.manager.AddTask(task)
 		}
 	}()
 	proto.RegisterOrchestratorServer(gRPC, s)
@@ -32,7 +32,7 @@ func RegisterOrchestratorServer(gRPC *grpc.Server) {
 
 func (s *serverAPI) TaskStream(stream grpc.BidiStreamingServer[proto.Task, proto.Task]) error {
 	go func() {
-		for task := range s.tasks {
+		for task := range s.manager.Tasks {
 			if err := stream.Send(task); err != nil {
 				return
 			}
@@ -42,14 +42,12 @@ func (s *serverAPI) TaskStream(stream grpc.BidiStreamingServer[proto.Task, proto
 	for {
 		resp, err := stream.Recv()
 		if err == io.EOF {
-			close(s.results)
-			close(s.tasks)
 			return nil
 		}
 		if err != nil {
 			return err
 		}
-		s.results <- resp
+		s.manager.AddResult(resp)
 		fmt.Println(resp)
 	}
 }

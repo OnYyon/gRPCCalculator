@@ -7,6 +7,7 @@
 package proto
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -113,11 +114,99 @@ func (x *Task) GetHave() bool {
 	return false
 }
 
+type IDExpression struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IDExpression) Reset() {
+	*x = IDExpression{}
+	mi := &file_orchestrator_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IDExpression) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IDExpression) ProtoMessage() {}
+
+func (x *IDExpression) ProtoReflect() protoreflect.Message {
+	mi := &file_orchestrator_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IDExpression.ProtoReflect.Descriptor instead.
+func (*IDExpression) Descriptor() ([]byte, []int) {
+	return file_orchestrator_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *IDExpression) GetID() string {
+	if x != nil {
+		return x.ID
+	}
+	return ""
+}
+
+type Expression struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Expression    string                 `protobuf:"bytes,1,opt,name=Expression,proto3" json:"Expression,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Expression) Reset() {
+	*x = Expression{}
+	mi := &file_orchestrator_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Expression) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Expression) ProtoMessage() {}
+
+func (x *Expression) ProtoReflect() protoreflect.Message {
+	mi := &file_orchestrator_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Expression.ProtoReflect.Descriptor instead.
+func (*Expression) Descriptor() ([]byte, []int) {
+	return file_orchestrator_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Expression) GetExpression() string {
+	if x != nil {
+		return x.Expression
+	}
+	return ""
+}
+
 var File_orchestrator_proto protoreflect.FileDescriptor
 
 const file_orchestrator_proto_rawDesc = "" +
 	"\n" +
-	"\x12orchestrator.proto\x12\forchestrator\"\xaa\x01\n" +
+	"\x12orchestrator.proto\x12\forchestrator\x1a\x1cgoogle/api/annotations.proto\"\xaa\x01\n" +
 	"\x04Task\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x12\n" +
 	"\x04Arg1\x18\x02 \x01(\x01R\x04Arg1\x12\x12\n" +
@@ -125,10 +214,18 @@ const file_orchestrator_proto_rawDesc = "" +
 	"\x06Result\x18\x05 \x01(\x01R\x06Result\x12\x1a\n" +
 	"\bOperator\x18\x06 \x01(\tR\bOperator\x12\"\n" +
 	"\fExpressionID\x18\a \x01(\tR\fExpressionID\x12\x12\n" +
-	"\x04have\x18\b \x01(\bR\x04have2H\n" +
+	"\x04have\x18\b \x01(\bR\x04have\"\x1e\n" +
+	"\fIDExpression\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\tR\x02ID\",\n" +
+	"\n" +
+	"Expression\x12\x1e\n" +
+	"\n" +
+	"Expression\x18\x01 \x01(\tR\n" +
+	"Expression2\xb0\x01\n" +
 	"\fOrchestrator\x128\n" +
 	"\n" +
-	"TaskStream\x12\x12.orchestrator.Task\x1a\x12.orchestrator.Task(\x010\x01B(Z&github.com/OnYyon/gRPCCalculator/protob\x06proto3"
+	"TaskStream\x12\x12.orchestrator.Task\x1a\x12.orchestrator.Task(\x010\x01\x12f\n" +
+	"\x10AddNewExpression\x12\x18.orchestrator.Expression\x1a\x1a.orchestrator.IDExpression\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/v1/calculateB(Z&github.com/OnYyon/gRPCCalculator/protob\x06proto3"
 
 var (
 	file_orchestrator_proto_rawDescOnce sync.Once
@@ -142,15 +239,19 @@ func file_orchestrator_proto_rawDescGZIP() []byte {
 	return file_orchestrator_proto_rawDescData
 }
 
-var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_orchestrator_proto_goTypes = []any{
-	(*Task)(nil), // 0: orchestrator.Task
+	(*Task)(nil),         // 0: orchestrator.Task
+	(*IDExpression)(nil), // 1: orchestrator.IDExpression
+	(*Expression)(nil),   // 2: orchestrator.Expression
 }
 var file_orchestrator_proto_depIdxs = []int32{
 	0, // 0: orchestrator.Orchestrator.TaskStream:input_type -> orchestrator.Task
-	0, // 1: orchestrator.Orchestrator.TaskStream:output_type -> orchestrator.Task
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: orchestrator.Orchestrator.AddNewExpression:input_type -> orchestrator.Expression
+	0, // 2: orchestrator.Orchestrator.TaskStream:output_type -> orchestrator.Task
+	1, // 3: orchestrator.Orchestrator.AddNewExpression:output_type -> orchestrator.IDExpression
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -167,7 +268,7 @@ func file_orchestrator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_orchestrator_proto_rawDesc), len(file_orchestrator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

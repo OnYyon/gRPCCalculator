@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Orchestrator_TaskStream_FullMethodName = "/orchestrator.Orchestrator/TaskStream"
+	Orchestrator_TaskStream_FullMethodName       = "/orchestrator.Orchestrator/TaskStream"
+	Orchestrator_AddNewExpression_FullMethodName = "/orchestrator.Orchestrator/AddNewExpression"
 )
 
 // OrchestratorClient is the client API for Orchestrator service.
@@ -27,6 +28,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrchestratorClient interface {
 	TaskStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error)
+	// Rest gateways
+	AddNewExpression(ctx context.Context, in *Expression, opts ...grpc.CallOption) (*IDExpression, error)
 }
 
 type orchestratorClient struct {
@@ -50,11 +53,23 @@ func (c *orchestratorClient) TaskStream(ctx context.Context, opts ...grpc.CallOp
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Orchestrator_TaskStreamClient = grpc.BidiStreamingClient[Task, Task]
 
+func (c *orchestratorClient) AddNewExpression(ctx context.Context, in *Expression, opts ...grpc.CallOption) (*IDExpression, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IDExpression)
+	err := c.cc.Invoke(ctx, Orchestrator_AddNewExpression_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrchestratorServer is the server API for Orchestrator service.
 // All implementations must embed UnimplementedOrchestratorServer
 // for forward compatibility.
 type OrchestratorServer interface {
 	TaskStream(grpc.BidiStreamingServer[Task, Task]) error
+	// Rest gateways
+	AddNewExpression(context.Context, *Expression) (*IDExpression, error)
 	mustEmbedUnimplementedOrchestratorServer()
 }
 
@@ -67,6 +82,9 @@ type UnimplementedOrchestratorServer struct{}
 
 func (UnimplementedOrchestratorServer) TaskStream(grpc.BidiStreamingServer[Task, Task]) error {
 	return status.Errorf(codes.Unimplemented, "method TaskStream not implemented")
+}
+func (UnimplementedOrchestratorServer) AddNewExpression(context.Context, *Expression) (*IDExpression, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNewExpression not implemented")
 }
 func (UnimplementedOrchestratorServer) mustEmbedUnimplementedOrchestratorServer() {}
 func (UnimplementedOrchestratorServer) testEmbeddedByValue()                      {}
@@ -96,13 +114,36 @@ func _Orchestrator_TaskStream_Handler(srv interface{}, stream grpc.ServerStream)
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Orchestrator_TaskStreamServer = grpc.BidiStreamingServer[Task, Task]
 
+func _Orchestrator_AddNewExpression_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Expression)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrchestratorServer).AddNewExpression(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Orchestrator_AddNewExpression_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrchestratorServer).AddNewExpression(ctx, req.(*Expression))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Orchestrator_ServiceDesc is the grpc.ServiceDesc for Orchestrator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Orchestrator_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "orchestrator.Orchestrator",
 	HandlerType: (*OrchestratorServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddNewExpression",
+			Handler:    _Orchestrator_AddNewExpression_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "TaskStream",

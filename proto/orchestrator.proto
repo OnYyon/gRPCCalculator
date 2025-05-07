@@ -3,8 +3,18 @@ syntax = "proto3";
 package orchestrator;
 option go_package = "github.com/OnYyon/gRPCCalculator/proto";
 
+import "google/api/annotations.proto";
+
 service Orchestrator {
     rpc TaskStream(stream Task) returns (stream Task);
+
+    // Rest gateways
+    rpc AddNewExpression (Expression) returns (IDExpression) {
+        option (google.api.http) = {
+          post: "/api/v1/calculate"
+          body: "*"
+        };
+      }
 }
 
 message Task {
@@ -15,4 +25,11 @@ message Task {
     string Operator = 6;
     string ExpressionID = 7;
     bool have = 8;
+}
+
+message IDExpression {
+    string ID = 1;
+}
+message Expression {
+  string Expression = 1;
 }

@@ -11,8 +11,8 @@ import (
 
 // TODO: race condition
 type serverAPI struct {
-	proto.UnimplementedOrchestratorServer
 	manager *manager.Manager
+	proto.UnimplementedOrchestratorServer
 	// mu sync.Mutex
 }
 

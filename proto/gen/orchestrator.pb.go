@@ -160,7 +160,7 @@ func (x *IDExpression) GetID() string {
 
 type Expression struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Expression    string                 `protobuf:"bytes,1,opt,name=Expression,proto3" json:"Expression,omitempty"`
+	Expression    string                 `protobuf:"bytes,1,opt,name=expression,proto3" json:"expression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -220,8 +220,8 @@ const file_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"Expression\x12\x1e\n" +
 	"\n" +
-	"Expression\x18\x01 \x01(\tR\n" +
-	"Expression2\xb0\x01\n" +
+	"expression\x18\x01 \x01(\tR\n" +
+	"expression2\xb0\x01\n" +
 	"\fOrchestrator\x128\n" +
 	"\n" +
 	"TaskStream\x12\x12.orchestrator.Task\x1a\x12.orchestrator.Task(\x010\x01\x12f\n" +

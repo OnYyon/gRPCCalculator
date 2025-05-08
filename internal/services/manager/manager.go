@@ -1,9 +1,11 @@
 package manager
 
 import (
+	"fmt"
 	"sync"
 
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
+	"github.com/google/uuid"
 )
 
 type Manager struct {
@@ -36,4 +38,8 @@ func (m *Manager) GetResult() *proto.Task {
 	defer m.mu.Unlock()
 	result := <-m.Results
 	return result
+}
+
+func (m *Manager) GenerateUUID() string {
+	return fmt.Sprint(uuid.New())
 }

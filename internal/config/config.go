@@ -1,48 +1,43 @@
 package config
 
 import (
-	"os"
-	"strconv"
 	"time"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	TimeAdd         time.Duration
-	TimeSubtraction time.Duration
-	TimeMultiply    time.Duration
-	TimeDivision    time.Duration
-	ComputerPower   int
+	App struct {
+		Name    string `yaml:"name" env:"APP_NAME" env-default:"gRPCCalculator"`
+		Version string `yaml:"version" env:"APP_VERSION" env-default:"1.0.0"`
+	} `yaml:"app"`
+
+	Server struct {
+		Host string `yaml:"host" env:"SERVER_HOST" env-default:"0.0.0.0"`
+		Port string `yaml:"port" env:"SERVER_PORT" env-default:"8080"`
+	} `yaml:"server"`
+
+	Database struct {
+		DBPath         string `yaml:"dbPath" env:"DB_PATH" env-default:"./storage/calculator.db"`
+		MigrationsPath string `yaml:"migrationsPath" env:"MIGRATIONS_PATH" env-default:"./migrations"`
+	} `yaml:"database"`
+
+	Auth struct {
+		JWTSecret    string        `yaml:"jwt_secret" env:"JWT_SECRET" env-required:"true"`
+		TokenExpires time.Duration `yaml:"token_expires" env:"TOKEN_EXPIRES" env-default:"24h"`
+	} `yaml:"auth"`
 }
 
-func NewConfig() *Config {
-	return &Config{
-		TimeAdd:         getEnvTime("TIME_ADDITION_MS", 9999*time.Millisecond),
-		TimeSubtraction: getEnvTime("TIME_SUBTRACTION_MS", 9999*time.Millisecond),
-		TimeMultiply:    getEnvTime("TIME_MULTIPLICATIONS_MS", 9999*time.Millisecond),
-		TimeDivision:    getEnvTime("TIME_DIVISIONS_MS", 9999*time.Millisecond),
-		ComputerPower:   getEnvInt("COMPUTING_POWER", 3),
-	}
-}
+func Load(configPath string) (*Config, error) {
+	var cfg Config
 
-func getEnv(key string, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+	err := cleanenv.ReadConfig(configPath, &cfg)
+	if err != nil {
+		err = cleanenv.ReadEnv(&cfg)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return defaultValue
-}
 
-func getEnvInt(name string, defaultValue int) int {
-	valueStr := getEnv(name, "")
-	if value, err := strconv.Atoi(valueStr); err == nil {
-		return value
-	}
-	return defaultValue
-}
-
-func getEnvTime(name string, defaultValue time.Duration) time.Duration {
-	valueStr := getEnv(name, "")
-	if timeInt, err := strconv.ParseInt(valueStr, 10, 64); err == nil {
-		return time.Duration(timeInt) * time.Millisecond
-	}
-	return defaultValue
+	return &cfg, nil
 }

@@ -62,7 +62,11 @@ func (w *Worker) Run() error {
 				return fmt.Errorf("receive error: %w", err)
 			}
 
-			result := services.ProcessTask(task)
+			result, err := services.ProcessTask(task)
+			if err != nil {
+				// TODO: Сделать обработку 0
+				panic(err)
+			}
 
 			if err := w.stream.Send(result); err != nil {
 				return fmt.Errorf("send error: %w", err)

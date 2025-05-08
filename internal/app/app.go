@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/OnYyon/gRPCCalculator/internal/config"
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
 	orchestratorGRPC "github.com/OnYyon/gRPCCalculator/internal/transport/grpc/orchestrator"
 	api "github.com/OnYyon/gRPCCalculator/internal/transport/rest"
@@ -46,8 +47,9 @@ func runRestAPI(lis net.Listener) {
 	}
 }
 
-func StartOrchestrator() {
-	lis, err := net.Listen("tcp", ":8080")
+func StartOrchestrator(cfg *config.Config) {
+	port := cfg.Server.Port
+	lis, err := net.Listen("tcp", cfg.Server.Host+":"+port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -61,7 +63,7 @@ func StartOrchestrator() {
 	go rungRPC(grpcL)
 	go runRestAPI(httpL)
 
-	log.Println("Server started on :8080")
+	log.Println("Server started on", cfg.Server.Host+":"+port)
 	if err := m.Serve(); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

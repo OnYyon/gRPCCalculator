@@ -31,5 +31,5 @@ message IDExpression {
     string ID = 1;
 }
 message Expression {
-  string Expression = 1;
+  string expression = 1;
 }

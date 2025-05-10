@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/OnYyon/gRPCCalculator/internal/config"
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
@@ -16,55 +18,71 @@ import (
 	"google.golang.org/grpc"
 )
 
-func rungRPC(lis net.Listener) {
-	// TODO: сделать чтение из .env
-	manager := manager.NewManager()
+type App struct {
+	cfg     *config.Config
+	manager *manager.Manager
+}
+
+func New(cfg *config.Config) *App {
+	mgr := manager.NewManager(cfg)
+	return &App{
+		cfg:     cfg,
+		manager: mgr,
+	}
+}
+
+func (a *App) Run() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	lis, err := net.Listen("tcp", a.cfg.Server.Host+":"+a.cfg.Server.Port)
+	if err != nil {
+		return fmt.Errorf("failed to listen: %v", err)
+	}
+
+	m := cmux.New(lis)
+	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
+	httpL := m.Match(cmux.HTTP1Fast())
+
+	go a.runGRPCServer(grpcL)
+	go a.runHTTPServer(ctx, httpL)
+
+	log.Printf("Server started on %s:%s", a.cfg.Server.Host, a.cfg.Server.Port)
+	return m.Serve()
+}
+
+func (a *App) runGRPCServer(lis net.Listener) {
 	grpcServer := grpc.NewServer()
-	orchestratorGRPC.RegisterOrchestratorServer(grpcServer, manager)
+	orchestratorGRPC.RegisterOrchestratorServer(grpcServer, a.manager)
+
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Println("error serving grpc: ", err)
+		log.Printf("GRPC server failed: %v", err)
 		os.Exit(1)
 	}
 }
 
-func runRestAPI(lis net.Listener) {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
+func (a *App) runHTTPServer(ctx context.Context, lis net.Listener) {
 	mux := runtime.NewServeMux()
-	manager := manager.NewManager()
-	if err := api.RegisterOrchestratorGateway(ctx, mux, manager); err != nil {
-		panic(err)
+
+	if err := api.RegisterOrchestratorGateway(ctx, mux, a.manager); err != nil {
+		log.Printf("Failed to register gateway: %v", err)
+		os.Exit(1)
 	}
+
 	httpServer := &http.Server{
 		Handler: mux,
 	}
 
-	log.Println("Serving gRPC-Gateway on :8080")
-	if err := httpServer.Serve(lis); err != cmux.ErrListenerClosed {
-		log.Fatalf("failed to serve gateway: %v", err)
+	log.Println("Serving gRPC-Gateway on", a.cfg.Server.Host+":"+a.cfg.Server.Port)
+	if err := httpServer.Serve(lis); err != nil && err != cmux.ErrListenerClosed {
+		log.Printf("HTTP server failed: %v", err)
+		os.Exit(1)
 	}
 }
 
-func StartOrchestrator(cfg *config.Config) {
-	port := cfg.Server.Port
-	lis, err := net.Listen("tcp", cfg.Server.Host+":"+port)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+func (a *App) Close() error {
+	if a.manager.DB != nil {
+		return a.manager.DB.Close()
 	}
-
-	m := cmux.New(lis)
-
-	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
-	httpL := m.Match(cmux.HTTP1Fast())
-
-	// Start servers
-	go rungRPC(grpcL)
-	go runRestAPI(httpL)
-
-	log.Println("Server started on", cfg.Server.Host+":"+port)
-	if err := m.Serve(); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	return nil
 }

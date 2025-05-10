@@ -4,40 +4,67 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/OnYyon/gRPCCalculator/internal/config"
+	"github.com/OnYyon/gRPCCalculator/internal/storage/sqlite"
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
 	"github.com/google/uuid"
 )
 
 type Manager struct {
-	Tasks   chan *proto.Task
-	Results chan *proto.Task
-	mu      sync.Mutex
+	Expressions map[string]*Expression
+	Queque      chan *proto.Task
+	DB          *sqlite.Storage
+	mu          sync.Mutex
 }
 
-func NewManager() *Manager {
+type Expression struct {
+	Stack       []string
+	Tasks       map[string]*proto.Task
+	FinalResult float64
+	AllDone     bool
+}
+
+func NewManager(cfg *config.Config) *Manager {
+	s, err := sqlite.New(cfg.Database.DBPath, cfg.Database.MigrationsPath)
+	if err != nil {
+		panic(err)
+	}
 	return &Manager{
-		Tasks:   make(chan *proto.Task, 100),
-		Results: make(chan *proto.Task, 100),
+		DB:          s,
+		Queque:      make(chan *proto.Task, 100),
+		Expressions: make(map[string]*Expression),
+	}
+}
+
+func NewExpression() *Expression {
+	return &Expression{
+		Tasks:   make(map[string]*proto.Task),
+		Stack:   []string{},
+		AllDone: false,
 	}
 }
 
 func (m *Manager) AddTask(task *proto.Task) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.Tasks <- task
+	m.Queque <- task
 }
 
 func (m *Manager) AddResult(result *proto.Task) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.Results <- result
+	_, have := m.Expressions[result.ExpressionID]
+	if !have {
+		m.Expressions[result.ExpressionID] = NewExpression()
+	}
+	m.Expressions[result.ExpressionID].Tasks[result.ID] = result
 }
 
 func (m *Manager) GetResult() *proto.Task {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	result := <-m.Results
-	return result
+	// TODO:
+	return nil
 }
 
 func (m *Manager) GenerateUUID() string {

@@ -1,7 +1,6 @@
 package orchestratorGRPC
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
@@ -20,19 +19,12 @@ func RegisterOrchestratorServer(gRPC *grpc.Server, manager *manager.Manager) {
 	s := &serverAPI{
 		manager: manager,
 	}
-	// NOTE: for tests
-	go func() {
-		for i := 0; i < 5; i++ {
-			task := &proto.Task{ID: fmt.Sprint(i)}
-			s.manager.AddTask(task)
-		}
-	}()
 	proto.RegisterOrchestratorServer(gRPC, s)
 }
 
 func (s *serverAPI) TaskStream(stream grpc.BidiStreamingServer[proto.Task, proto.Task]) error {
 	go func() {
-		for task := range s.manager.Tasks {
+		for task := range s.manager.Queque {
 			if err := stream.Send(task); err != nil {
 				return
 			}
@@ -48,6 +40,5 @@ func (s *serverAPI) TaskStream(stream grpc.BidiStreamingServer[proto.Task, proto
 			return err
 		}
 		s.manager.AddResult(resp)
-		fmt.Println(resp)
 	}
 }

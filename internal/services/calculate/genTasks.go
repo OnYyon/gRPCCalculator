@@ -14,39 +14,41 @@ func GenerateTasks(rpn []string, expID string, manager *manager.Manager) ([]stri
 	tasks := []*proto.Task{}
 	// TODO: cделать релизацую с 0
 	for _, v := range rpn {
-		if isOperator(v) {
-			fmt.Println(stack)
+		// ----- NOTE: for tests -----
+		// fmt.Println(stack)
+		// ---------------------------
+		if isNumber(v) {
+			stack = append(stack, v)
+		} else if isOperator(v) {
 			if len(stack) < 2 {
 				stack = append(stack, v)
-				continue
-			}
-			if isNumber(stack[len(stack)-1]) && isNumber(stack[len(stack)-2]) {
-				a, err := convertToFloat(stack[len(stack)-2])
+			} else if isNumber(stack[len(stack)-1]) && isNumber(stack[len(stack)-2]) {
+				operand2, err := strconv.ParseFloat(stack[len(stack)-1], 64)
 				if err != nil {
 					return nil, nil, err
 				}
-				b, err := convertToFloat(stack[len(stack)-1])
+				operand1, err := strconv.ParseFloat(stack[len(stack)-2], 64)
 				if err != nil {
 					return nil, nil, err
 				}
+
 				task := &proto.Task{
 					ID:           manager.GenerateUUID(),
-					Arg1:         a,
-					Arg2:         b,
-					Operator:     v,
+					Arg1:         operand1,
+					Arg2:         operand2,
 					ExpressionID: expID,
+					Operator:     v,
 				}
-				fmt.Println(task)
-				tasks = append(tasks, task)
 				stack = stack[:len(stack)-2]
+
+				tasks = append(tasks, task)
 				stack = append(stack, task.ID)
+				continue
 			} else {
 				stack = append(stack, v)
 			}
-		} else if isNumber(v) {
-			stack = append(stack, v)
 		} else {
-
+			stack = append(stack, fmt.Sprint(manager.Expressions[expID].Tasks[v].Result))
 		}
 	}
 	return stack, tasks, nil
@@ -59,12 +61,4 @@ func isNumber(s string) bool {
 
 func isOperator(s string) bool {
 	return s == "+" || s == "-" || s == "*" || s == "/"
-}
-
-func convertToFloat(n string) (float64, error) {
-	a, err := strconv.ParseFloat(n, 64)
-	if err != nil {
-		return 0, err
-	}
-	return a, nil
 }

@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"time"
 
 	services "github.com/OnYyon/gRPCCalculator/internal/services/calculate"
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
@@ -15,7 +16,11 @@ type restAPI struct {
 	proto.UnimplementedOrchestratorServer
 }
 
-func RegisterOrchestratorGateway(ctx context.Context, mux *runtime.ServeMux, manager *manager.Manager) error {
+func RegisterOrchestratorGateway(
+	ctx context.Context,
+	mux *runtime.ServeMux,
+	manager *manager.Manager,
+) error {
 	s := &restAPI{
 		manager: manager,
 	}
@@ -24,16 +29,28 @@ func RegisterOrchestratorGateway(ctx context.Context, mux *runtime.ServeMux, man
 
 // TODO: доделать полный цикл решения задачи.
 // TODO: улучшить струткру.
-func (r *restAPI) AddNewExpression(ctx context.Context, request *proto.Expression) (*proto.IDExpression, error) {
+func (r *restAPI) AddNewExpression(
+	ctx context.Context,
+	request *proto.Expression,
+) (*proto.IDExpression, error) {
 	id := r.manager.GenerateUUID()
 	rpn, err := services.ParserToRPN(request.Expression)
+	fmt.Println(rpn)
 	if err != nil {
 		return nil, err
 	}
-	_, tasks, err := services.GenerateTasks(rpn, id, r.manager)
-	fmt.Println(tasks)
+	stack, tasks, err := services.GenerateTasks(rpn, id, r.manager)
+	for _, task := range tasks {
+		r.manager.AddTask(task)
+	}
+	time.Sleep(3 * time.Second)
+	fmt.Println(stack, r.manager.Expressions)
 	if err != nil {
 		return nil, err
+	}
+	err = r.manager.DB.SaveExpression(context.TODO(), id, id)
+	if err != nil {
+		panic(err)
 	}
 	return &proto.IDExpression{
 		ID: id,

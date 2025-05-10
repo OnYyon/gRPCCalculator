@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/OnYyon/gRPCCalculator/internal/config"
 	"github.com/golang-migrate/migrate/v4"
 
 	// NOTE: драйвера
@@ -17,9 +16,9 @@ type Migrator struct {
 	migrator *migrate.Migrate
 }
 
-func NewMigrator(db *sql.DB, cfg *config.Config) (*Migrator, error) {
-	m, err := migrate.New("file://"+cfg.Database.MigrationsPath,
-		"sqlite3://"+cfg.Database.DBPath)
+func NewMigrator(db *sql.DB, migrPath string, storagePath string) (*Migrator, error) {
+	m, err := migrate.New("file://"+migrPath,
+		"sqlite3://"+storagePath)
 	if err != nil {
 		return nil, err
 	}
@@ -29,6 +28,7 @@ func NewMigrator(db *sql.DB, cfg *config.Config) (*Migrator, error) {
 func (m *Migrator) ApplyMigrations() error {
 	if err := m.migrator.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
+			fmt.Println("no change to db")
 			return nil
 		}
 		return err

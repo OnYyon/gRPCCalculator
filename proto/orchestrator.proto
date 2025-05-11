@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package orchestrator;
+option go_package = "github.com/OnYyon/gRPCCalculator/proto";
+
+import "google/api/annotations.proto";
+
+service Orchestrator {
+    rpc TaskStream(stream Task) returns (stream Task);
+
+    // Rest gateways
+    rpc AddNewExpression (Expression) returns (IDExpression) {
+        option (google.api.http) = {
+          post: "/api/v1/calculate"
+          body: "*"
+        };
+    }
+
+    // Auth methods
+    rpc Register (AuthRequest) returns (AuthResponse) {
+        option (google.api.http) = {
+          post: "/api/v1/register"
+          body: "*"
+        };
+    }
+    
+    rpc Login (AuthRequest) returns (AuthResponse) {
+        option (google.api.http) = {
+          post: "/api/v1/login"
+          body: "*"
+        };
+    }
+}
+
+// TODO: сделать timeout
+message Task {
+    string ID = 1;
+    double Arg1 = 2;
+    double Arg2 = 3;
+    double Result = 5;
+    string Operator = 6;
+    string ExpressionID = 7;
+    bool completed = 8;
+
+    // Handling error
+    bool err = 9;
+    string descErr = 10;
+    int64 created_at = 11;
+    int32 retryCount = 12;
+    int64 timeout = 13;
+}
+
+message IDExpression {
+    string ID = 1;
+}
+message Expression {
+  string expression = 1;
+}
+
+message AuthRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message AuthResponse {
+    string token = 1;
+}

@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS expressions;
+DROP TABLE IF EXISTS users;

@@ -19,10 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Orchestrator_TaskStream_FullMethodName       = "/orchestrator.Orchestrator/TaskStream"
-	Orchestrator_AddNewExpression_FullMethodName = "/orchestrator.Orchestrator/AddNewExpression"
-	Orchestrator_Register_FullMethodName         = "/orchestrator.Orchestrator/Register"
-	Orchestrator_Login_FullMethodName            = "/orchestrator.Orchestrator/Login"
+	Orchestrator_TaskStream_FullMethodName        = "/orchestrator.Orchestrator/TaskStream"
+	Orchestrator_AddNewExpression_FullMethodName  = "/orchestrator.Orchestrator/AddNewExpression"
+	Orchestrator_GetExpressionByID_FullMethodName = "/orchestrator.Orchestrator/GetExpressionByID"
+	Orchestrator_GetListExpression_FullMethodName = "/orchestrator.Orchestrator/GetListExpression"
+	Orchestrator_Register_FullMethodName          = "/orchestrator.Orchestrator/Register"
+	Orchestrator_Login_FullMethodName             = "/orchestrator.Orchestrator/Login"
 )
 
 // OrchestratorClient is the client API for Orchestrator service.
@@ -30,9 +32,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrchestratorClient interface {
 	TaskStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error)
-	// Rest gateways
 	AddNewExpression(ctx context.Context, in *Expression, opts ...grpc.CallOption) (*IDExpression, error)
-	// Auth methods
+	GetExpressionByID(ctx context.Context, in *IDExpression, opts ...grpc.CallOption) (*ExpressionRes, error)
+	GetListExpression(ctx context.Context, in *TNIL, opts ...grpc.CallOption) (*ExpressionList, error)
 	Register(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	Login(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 }
@@ -68,6 +70,26 @@ func (c *orchestratorClient) AddNewExpression(ctx context.Context, in *Expressio
 	return out, nil
 }
 
+func (c *orchestratorClient) GetExpressionByID(ctx context.Context, in *IDExpression, opts ...grpc.CallOption) (*ExpressionRes, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExpressionRes)
+	err := c.cc.Invoke(ctx, Orchestrator_GetExpressionByID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orchestratorClient) GetListExpression(ctx context.Context, in *TNIL, opts ...grpc.CallOption) (*ExpressionList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExpressionList)
+	err := c.cc.Invoke(ctx, Orchestrator_GetListExpression_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *orchestratorClient) Register(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AuthResponse)
@@ -93,9 +115,9 @@ func (c *orchestratorClient) Login(ctx context.Context, in *AuthRequest, opts ..
 // for forward compatibility.
 type OrchestratorServer interface {
 	TaskStream(grpc.BidiStreamingServer[Task, Task]) error
-	// Rest gateways
 	AddNewExpression(context.Context, *Expression) (*IDExpression, error)
-	// Auth methods
+	GetExpressionByID(context.Context, *IDExpression) (*ExpressionRes, error)
+	GetListExpression(context.Context, *TNIL) (*ExpressionList, error)
 	Register(context.Context, *AuthRequest) (*AuthResponse, error)
 	Login(context.Context, *AuthRequest) (*AuthResponse, error)
 	mustEmbedUnimplementedOrchestratorServer()
@@ -113,6 +135,12 @@ func (UnimplementedOrchestratorServer) TaskStream(grpc.BidiStreamingServer[Task,
 }
 func (UnimplementedOrchestratorServer) AddNewExpression(context.Context, *Expression) (*IDExpression, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddNewExpression not implemented")
+}
+func (UnimplementedOrchestratorServer) GetExpressionByID(context.Context, *IDExpression) (*ExpressionRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExpressionByID not implemented")
+}
+func (UnimplementedOrchestratorServer) GetListExpression(context.Context, *TNIL) (*ExpressionList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListExpression not implemented")
 }
 func (UnimplementedOrchestratorServer) Register(context.Context, *AuthRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
@@ -166,6 +194,42 @@ func _Orchestrator_AddNewExpression_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Orchestrator_GetExpressionByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IDExpression)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrchestratorServer).GetExpressionByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Orchestrator_GetExpressionByID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrchestratorServer).GetExpressionByID(ctx, req.(*IDExpression))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Orchestrator_GetListExpression_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TNIL)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrchestratorServer).GetListExpression(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Orchestrator_GetListExpression_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrchestratorServer).GetListExpression(ctx, req.(*TNIL))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Orchestrator_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AuthRequest)
 	if err := dec(in); err != nil {
@@ -212,6 +276,14 @@ var Orchestrator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddNewExpression",
 			Handler:    _Orchestrator_AddNewExpression_Handler,
+		},
+		{
+			MethodName: "GetExpressionByID",
+			Handler:    _Orchestrator_GetExpressionByID_Handler,
+		},
+		{
+			MethodName: "GetListExpression",
+			Handler:    _Orchestrator_GetListExpression_Handler,
 		},
 		{
 			MethodName: "Register",

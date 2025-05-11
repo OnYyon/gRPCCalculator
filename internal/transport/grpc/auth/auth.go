@@ -60,6 +60,7 @@ func (a *AuthGRPC) AuthInterceptor(
 }
 
 func (a *AuthGRPC) ValidateTokenAndGetUserID(tokenString string) (string, error) {
+
 	if a.manager.Cfg.Auth.JWTSecret == "" {
 		return "", fmt.Errorf("JWT secret is not configured")
 	}

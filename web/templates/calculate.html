@@ -1,0 +1,15 @@
+{{define "content"}}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Calculate Expression</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="expression" class="form-label">Expression</label>
+                <input type="text" class="form-control" id="expression" name="expression" required>
+                <div class="form-text">Example: 2 + 2 * 2</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Calculate</button>
+        </form>
+    </div>
+</div>
+{{end}}

@@ -8,7 +8,6 @@ import "google/api/annotations.proto";
 service Orchestrator {
     rpc TaskStream(stream Task) returns (stream Task);
 
-    // Rest gateways
     rpc AddNewExpression (Expression) returns (IDExpression) {
         option (google.api.http) = {
           post: "/api/v1/calculate"
@@ -16,7 +15,18 @@ service Orchestrator {
         };
     }
 
-    // Auth methods
+    rpc GetExpressionByID (IDExpression) returns (ExpressionRes) {
+      option (google.api.http) = {
+          get: "/api/v1/expressions/{id}"
+        };
+    }
+
+    rpc GetListExpression (TNIL) returns (ExpressionList) {
+      option (google.api.http) = {
+          get: "/api/v1/expressions"
+        };
+    }
+
     rpc Register (AuthRequest) returns (AuthResponse) {
         option (google.api.http) = {
           post: "/api/v1/register"
@@ -32,7 +42,6 @@ service Orchestrator {
     }
 }
 
-// TODO: сделать timeout
 message Task {
     string ID = 1;
     double Arg1 = 2;
@@ -51,7 +60,7 @@ message Task {
 }
 
 message IDExpression {
-    string ID = 1;
+    string id = 1;
 }
 message Expression {
   string expression = 1;
@@ -63,5 +72,18 @@ message AuthRequest {
 }
 
 message AuthResponse {
-    string token = 1;
+  string token = 1;
 }
+
+message ExpressionRes {
+  string ID  = 1;
+  string Status = 2;
+	string Result = 3;
+  string Input = 4;
+}
+
+message ExpressionList {
+  repeated ExpressionRes List = 1;
+}
+
+message TNIL {}

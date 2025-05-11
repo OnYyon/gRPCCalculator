@@ -1,0 +1,28 @@
+{{define "content"}}
+<h2 class="mb-4">Expressions</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Expression</th>
+            <th>Status</th>
+            <th>Result</th>
+            <th>Created At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Input}}</td>
+            <td>
+                <span class="badge bg-{{if eq .Status "completed"}}success{{else if eq .Status "error"}}danger{{else}}warning{{end}}">
+                    {{.Status}}
+                </span>
+            </td>
+            <td>{{.Result}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}

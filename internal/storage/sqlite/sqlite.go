@@ -3,12 +3,20 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Storage struct {
 	db *sql.DB
+}
+
+type Expression struct {
+	ID         string
+	Expression string
+	Status     string
+	Result     string
 }
 
 func New(
@@ -49,12 +57,12 @@ func (s *Storage) SaveExpression(
 	ctx context.Context,
 	expressionID string,
 	expression string,
+	user_id string,
 ) error {
-	// TODO: ген user_id из авторизации
 	_, err := s.db.ExecContext(ctx, `
 		INSERT INTO Expressions (user_id, expression, expressionID, status) 
-		VALUES(0, ?, ?, ?)
-	`, expression, expressionID, "processing")
+		VALUES(?, ?, ?, ?)
+	`, user_id, expression, expressionID, "processing")
 	return err
 }
 
@@ -73,9 +81,59 @@ func (s *Storage) UpdateExpression(
 func (s *Storage) GetExpressionByID(
 	ctx context.Context,
 	expressionID string,
-) (float64, error) {
-	// TODO:
-	return 0, nil
+) (map[string]string, error) {
+	var (
+		id         string
+		expression string
+		status     string
+		result     sql.NullString
+	)
+	err := s.db.QueryRowContext(ctx, `
+		SELECT expressionID, expression, status, result FROM Expressions WHERE expressionID = ?`, expressionID,
+	).Scan(&id, &expression, &status, &result)
+	o := make(map[string]string)
+	o["id"] = id
+	o["expression"] = expression
+	o["status"] = status
+	if result.Valid {
+		o["result"] = result.String
+	} else {
+		o["result"] = ""
+	}
+	return o, err
+}
+
+func (s *Storage) GetExpressionList(
+	ctx context.Context,
+	userid string,
+) ([]Expression, error) {
+	rows, err := s.db.Query("SELECT expressionID, expression, status, result FROM Expressions WHERE user_id = ?", userid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query expressions: %v", err)
+	}
+	defer rows.Close()
+
+	var expressions []Expression
+	var res sql.NullString
+	for rows.Next() {
+		var expr Expression
+		err := rows.Scan(&expr.ID, &expr.Expression, &expr.Status, &res)
+		if !res.Valid {
+			expr.Result = ""
+		} else {
+			expr.Result = res.String
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan expression: %v", err)
+		}
+		expressions = append(expressions, expr)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error after iterating rows: %v", err)
+	}
+
+	return expressions, nil
 }
 
 // TODO:

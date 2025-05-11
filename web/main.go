@@ -13,7 +13,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 
-	apiHandler := handlers.NewAPIHandler("http://localhost:" + "8080")
+	apiHandler := handlers.NewAPIHandler("http://0.0.0.0:" + "8080")
 
 	r.HandleFunc("/", apiHandler.HomeHandler).Methods("GET")
 	r.HandleFunc("/login", apiHandler.LoginHandler).Methods("GET", "POST")
@@ -25,7 +25,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         "127.0.0.1:8081",
+		Addr:         "0.0.0.0:8081",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}

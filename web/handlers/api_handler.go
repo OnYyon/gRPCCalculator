@@ -75,8 +75,9 @@ func (h *APIHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 			"login":    login,
 			"password": password,
 		})
-
+		fmt.Println(reqBody)
 		resp, err := http.Post(h.apiBaseURL+"/api/v1/login", "application/json", bytes.NewBuffer(reqBody))
+		fmt.Println(resp, err)
 		if err != nil {
 			http.Error(w, "API connection error", http.StatusInternalServerError)
 			return
@@ -118,6 +119,7 @@ func (h *APIHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		})
 
 		resp, err := http.Post(h.apiBaseURL+"/api/v1/register", "application/json", bytes.NewBuffer(reqBody))
+		fmt.Println(resp, err)
 		if err != nil {
 			http.Error(w, "API connection error", http.StatusInternalServerError)
 			return

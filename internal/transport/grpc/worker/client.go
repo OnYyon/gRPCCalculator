@@ -21,17 +21,29 @@ type Worker struct {
 	cancel context.CancelFunc
 }
 
-// TODO: сделать регаситратор нового worker
 func NewWorker() (*Worker, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	conn, err := grpc.NewClient(
-		"localhost:8080",
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+	var conn *grpc.ClientConn
+	var err error
+
+	for i := 0; i < 3; i++ {
+		conn, err = grpc.NewClient(
+			"localhost:8080",
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		)
+		if err == nil {
+			break
+		}
+
+		waitTime := time.Second * time.Duration(i+1)
+		log.Printf("Connection attempt %d failed, retrying in %v: %v", i+1, waitTime, err)
+		time.Sleep(waitTime)
+	}
+
 	if err != nil {
 		cancel()
-		return nil, fmt.Errorf("failed to connect: %w", err)
+		return nil, fmt.Errorf("failed to connect after 3 attempts: %w", err)
 	}
 
 	client := proto.NewOrchestratorClient(conn)
@@ -50,7 +62,6 @@ func NewWorker() (*Worker, error) {
 		cancel: cancel,
 	}, nil
 }
-
 func (w *Worker) Run() error {
 	defer w.cleanup()
 

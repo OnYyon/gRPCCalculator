@@ -1,7 +1,6 @@
 package orchestratorGRPC
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
@@ -38,7 +37,6 @@ func (s *serverAPI) TaskStream(stream grpc.BidiStreamingServer[proto.Task, proto
 		if err != nil {
 			return err
 		}
-		fmt.Println(resp, err)
 		s.manager.AddResult(resp)
 	}
 }

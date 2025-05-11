@@ -22,7 +22,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// TODO: сделать timeout
 type Task struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	ID           string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
@@ -158,7 +157,7 @@ func (x *Task) GetTimeout() int64 {
 
 type IDExpression struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -193,9 +192,9 @@ func (*IDExpression) Descriptor() ([]byte, []int) {
 	return file_orchestrator_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *IDExpression) GetID() string {
+func (x *IDExpression) GetId() string {
 	if x != nil {
-		return x.ID
+		return x.Id
 	}
 	return ""
 }
@@ -340,6 +339,154 @@ func (x *AuthResponse) GetToken() string {
 	return ""
 }
 
+type ExpressionRes struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=Status,proto3" json:"Status,omitempty"`
+	Result        string                 `protobuf:"bytes,3,opt,name=Result,proto3" json:"Result,omitempty"`
+	Input         string                 `protobuf:"bytes,4,opt,name=Input,proto3" json:"Input,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExpressionRes) Reset() {
+	*x = ExpressionRes{}
+	mi := &file_orchestrator_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExpressionRes) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExpressionRes) ProtoMessage() {}
+
+func (x *ExpressionRes) ProtoReflect() protoreflect.Message {
+	mi := &file_orchestrator_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExpressionRes.ProtoReflect.Descriptor instead.
+func (*ExpressionRes) Descriptor() ([]byte, []int) {
+	return file_orchestrator_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ExpressionRes) GetID() string {
+	if x != nil {
+		return x.ID
+	}
+	return ""
+}
+
+func (x *ExpressionRes) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ExpressionRes) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+func (x *ExpressionRes) GetInput() string {
+	if x != nil {
+		return x.Input
+	}
+	return ""
+}
+
+type ExpressionList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ExpressionRes       `protobuf:"bytes,1,rep,name=List,proto3" json:"List,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExpressionList) Reset() {
+	*x = ExpressionList{}
+	mi := &file_orchestrator_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExpressionList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExpressionList) ProtoMessage() {}
+
+func (x *ExpressionList) ProtoReflect() protoreflect.Message {
+	mi := &file_orchestrator_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExpressionList.ProtoReflect.Descriptor instead.
+func (*ExpressionList) Descriptor() ([]byte, []int) {
+	return file_orchestrator_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ExpressionList) GetList() []*ExpressionRes {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+type TNIL struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TNIL) Reset() {
+	*x = TNIL{}
+	mi := &file_orchestrator_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TNIL) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TNIL) ProtoMessage() {}
+
+func (x *TNIL) ProtoReflect() protoreflect.Message {
+	mi := &file_orchestrator_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TNIL.ProtoReflect.Descriptor instead.
+func (*TNIL) Descriptor() ([]byte, []int) {
+	return file_orchestrator_proto_rawDescGZIP(), []int{7}
+}
+
 var File_orchestrator_proto protoreflect.FileDescriptor
 
 const file_orchestrator_proto_rawDesc = "" +
@@ -363,7 +510,7 @@ const file_orchestrator_proto_rawDesc = "" +
 	"retryCount\x12\x18\n" +
 	"\atimeout\x18\r \x01(\x03R\atimeout\"\x1e\n" +
 	"\fIDExpression\x12\x0e\n" +
-	"\x02ID\x18\x01 \x01(\tR\x02ID\",\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\",\n" +
 	"\n" +
 	"Expression\x12\x1e\n" +
 	"\n" +
@@ -373,11 +520,21 @@ const file_orchestrator_proto_rawDesc = "" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"$\n" +
 	"\fAuthResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token2\xea\x02\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"e\n" +
+	"\rExpressionRes\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x16\n" +
+	"\x06Status\x18\x02 \x01(\tR\x06Status\x12\x16\n" +
+	"\x06Result\x18\x03 \x01(\tR\x06Result\x12\x14\n" +
+	"\x05Input\x18\x04 \x01(\tR\x05Input\"A\n" +
+	"\x0eExpressionList\x12/\n" +
+	"\x04List\x18\x01 \x03(\v2\x1b.orchestrator.ExpressionResR\x04List\"\x06\n" +
+	"\x04TNIL2\xbe\x04\n" +
 	"\fOrchestrator\x128\n" +
 	"\n" +
 	"TaskStream\x12\x12.orchestrator.Task\x1a\x12.orchestrator.Task(\x010\x01\x12f\n" +
-	"\x10AddNewExpression\x12\x18.orchestrator.Expression\x1a\x1a.orchestrator.IDExpression\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/v1/calculate\x12^\n" +
+	"\x10AddNewExpression\x12\x18.orchestrator.Expression\x1a\x1a.orchestrator.IDExpression\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/v1/calculate\x12n\n" +
+	"\x11GetExpressionByID\x12\x1a.orchestrator.IDExpression\x1a\x1b.orchestrator.ExpressionRes\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/expressions/{id}\x12b\n" +
+	"\x11GetListExpression\x12\x12.orchestrator.TNIL\x1a\x1c.orchestrator.ExpressionList\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1/expressions\x12^\n" +
 	"\bRegister\x12\x19.orchestrator.AuthRequest\x1a\x1a.orchestrator.AuthResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/v1/register\x12X\n" +
 	"\x05Login\x12\x19.orchestrator.AuthRequest\x1a\x1a.orchestrator.AuthResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/loginB(Z&github.com/OnYyon/gRPCCalculator/protob\x06proto3"
 
@@ -393,28 +550,36 @@ func file_orchestrator_proto_rawDescGZIP() []byte {
 	return file_orchestrator_proto_rawDescData
 }
 
-var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_orchestrator_proto_goTypes = []any{
-	(*Task)(nil),         // 0: orchestrator.Task
-	(*IDExpression)(nil), // 1: orchestrator.IDExpression
-	(*Expression)(nil),   // 2: orchestrator.Expression
-	(*AuthRequest)(nil),  // 3: orchestrator.AuthRequest
-	(*AuthResponse)(nil), // 4: orchestrator.AuthResponse
+	(*Task)(nil),           // 0: orchestrator.Task
+	(*IDExpression)(nil),   // 1: orchestrator.IDExpression
+	(*Expression)(nil),     // 2: orchestrator.Expression
+	(*AuthRequest)(nil),    // 3: orchestrator.AuthRequest
+	(*AuthResponse)(nil),   // 4: orchestrator.AuthResponse
+	(*ExpressionRes)(nil),  // 5: orchestrator.ExpressionRes
+	(*ExpressionList)(nil), // 6: orchestrator.ExpressionList
+	(*TNIL)(nil),           // 7: orchestrator.TNIL
 }
 var file_orchestrator_proto_depIdxs = []int32{
-	0, // 0: orchestrator.Orchestrator.TaskStream:input_type -> orchestrator.Task
-	2, // 1: orchestrator.Orchestrator.AddNewExpression:input_type -> orchestrator.Expression
-	3, // 2: orchestrator.Orchestrator.Register:input_type -> orchestrator.AuthRequest
-	3, // 3: orchestrator.Orchestrator.Login:input_type -> orchestrator.AuthRequest
-	0, // 4: orchestrator.Orchestrator.TaskStream:output_type -> orchestrator.Task
-	1, // 5: orchestrator.Orchestrator.AddNewExpression:output_type -> orchestrator.IDExpression
-	4, // 6: orchestrator.Orchestrator.Register:output_type -> orchestrator.AuthResponse
-	4, // 7: orchestrator.Orchestrator.Login:output_type -> orchestrator.AuthResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	5, // 0: orchestrator.ExpressionList.List:type_name -> orchestrator.ExpressionRes
+	0, // 1: orchestrator.Orchestrator.TaskStream:input_type -> orchestrator.Task
+	2, // 2: orchestrator.Orchestrator.AddNewExpression:input_type -> orchestrator.Expression
+	1, // 3: orchestrator.Orchestrator.GetExpressionByID:input_type -> orchestrator.IDExpression
+	7, // 4: orchestrator.Orchestrator.GetListExpression:input_type -> orchestrator.TNIL
+	3, // 5: orchestrator.Orchestrator.Register:input_type -> orchestrator.AuthRequest
+	3, // 6: orchestrator.Orchestrator.Login:input_type -> orchestrator.AuthRequest
+	0, // 7: orchestrator.Orchestrator.TaskStream:output_type -> orchestrator.Task
+	1, // 8: orchestrator.Orchestrator.AddNewExpression:output_type -> orchestrator.IDExpression
+	5, // 9: orchestrator.Orchestrator.GetExpressionByID:output_type -> orchestrator.ExpressionRes
+	6, // 10: orchestrator.Orchestrator.GetListExpression:output_type -> orchestrator.ExpressionList
+	4, // 11: orchestrator.Orchestrator.Register:output_type -> orchestrator.AuthResponse
+	4, // 12: orchestrator.Orchestrator.Login:output_type -> orchestrator.AuthResponse
+	7, // [7:13] is the sub-list for method output_type
+	1, // [1:7] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_orchestrator_proto_init() }
@@ -428,7 +593,7 @@ func file_orchestrator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_orchestrator_proto_rawDesc), len(file_orchestrator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

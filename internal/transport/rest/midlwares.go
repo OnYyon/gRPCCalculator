@@ -23,7 +23,6 @@ func NewAuthHandler(authInterceptor *auth.AuthGRPC, mux http.Handler, publicEndp
 
 func (h *AuthHandler) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Пропускаем аутентификацию для публичных эндпоинтов
 		for _, endpoint := range h.publicEndpoints {
 			if r.URL.Path == endpoint {
 				h.mux.ServeHTTP(w, r)
@@ -31,7 +30,6 @@ func (h *AuthHandler) Middleware(next http.Handler) http.Handler {
 			}
 		}
 
-		// Проверяем JWT для остальных запросов
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			http.Error(w, "Authorization header is required", http.StatusUnauthorized)
@@ -44,7 +42,6 @@ func (h *AuthHandler) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Используем интерцептор для проверки токена
 		_, err := h.authInterceptor.ValidateTokenAndGetUserID(tokenString)
 		if err != nil {
 			http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)

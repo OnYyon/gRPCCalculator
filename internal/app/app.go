@@ -18,6 +18,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type App struct {
@@ -28,10 +29,11 @@ type App struct {
 
 func New(cfg *config.Config) *App {
 	mgr := manager.NewManager(cfg)
+	auth := auth.NewAuthGRPC(mgr)
 	return &App{
 		cfg:     cfg,
 		manager: mgr,
-		auth:    auth.NewAuthGRPC(mgr),
+		auth:    auth,
 	}
 }
 
@@ -57,9 +59,8 @@ func (a *App) Run() error {
 }
 
 func (a *App) runGRPCServer(lis net.Listener) {
-	auth := auth.NewAuthGRPC(a.manager)
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(auth.AuthInterceptor),
+		grpc.UnaryInterceptor(a.auth.AuthInterceptor),
 	)
 	orchestratorGRPC.RegisterOrchestratorServer(grpcServer, a.manager)
 
@@ -70,18 +71,31 @@ func (a *App) runGRPCServer(lis net.Listener) {
 }
 
 func (a *App) runHTTPServer(ctx context.Context, lis net.Listener) {
-	mux := runtime.NewServeMux()
+	mainMux := http.NewServeMux()
+	mux := runtime.NewServeMux(runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
+		md := metadata.MD{}
+		if authHeader := req.Header.Get("Authorization"); authHeader != "" {
+			md.Set("authorization", authHeader)
+		}
+		return md
+	}))
 	authHandler := api.NewAuthHandler(
 		a.auth,
 		mux,
 		[]string{"/api/v1/register", "/api/v1/login"}).Middleware(mux)
-	if err := api.RegisterOrchestratorGateway(ctx, mux, a.manager); err != nil {
+	if err := api.RegisterOrchestratorGateway(ctx, mux, a.manager, a.auth); err != nil {
 		log.Printf("Failed to register gateway: %v", err)
 		os.Exit(1)
 	}
+	fs := http.FileServer(http.Dir("./static"))
+	mainMux.Handle("/api/", authHandler)
+	mainMux.Handle("/static/", http.StripPrefix("/static/", fs))
+	mainMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./templates/index.html")
+	})
 
 	httpServer := &http.Server{
-		Handler: authHandler,
+		Handler: mainMux,
 	}
 
 	log.Println("Serving gRPC-Gateway on", a.cfg.Server.Host+":"+a.cfg.Server.Port)

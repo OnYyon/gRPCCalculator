@@ -24,7 +24,7 @@ message Task {
     double Result = 5;
     string Operator = 6;
     string ExpressionID = 7;
-    bool have = 8;
+    bool last = 8;
 }
 
 message IDExpression {

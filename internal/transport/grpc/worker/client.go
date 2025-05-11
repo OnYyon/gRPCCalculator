@@ -61,10 +61,10 @@ func (w *Worker) Run() error {
 			if err != nil {
 				return fmt.Errorf("receive error: %w", err)
 			}
-
+			fmt.Printf("get task: %v %v %v\n", task.Arg1, task.Operator, task.Arg2)
 			result, err := services.ProcessTask(task)
 			if err != nil {
-				// TODO: Сделать обработку 0
+				fmt.Println(task.Arg1, task.Arg2)
 				panic(err)
 			}
 

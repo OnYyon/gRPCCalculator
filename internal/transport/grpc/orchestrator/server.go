@@ -8,11 +8,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-// TODO: race condition
 type serverAPI struct {
 	manager *manager.Manager
 	proto.UnimplementedOrchestratorServer
-	// mu sync.Mutex
 }
 
 func RegisterOrchestratorServer(gRPC *grpc.Server, manager *manager.Manager) {

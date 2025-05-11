@@ -43,7 +43,6 @@ func GenerateTasks(rpn []string, expID string, manager *manager.Manager) ([]stri
 
 				tasks = append(tasks, task)
 				stack = append(stack, task.ID)
-				continue
 			} else {
 				stack = append(stack, v)
 			}

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/OnYyon/gRPCCalculator/internal/config"
+	services "github.com/OnYyon/gRPCCalculator/internal/services/calculate"
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
 	orchestratorGRPC "github.com/OnYyon/gRPCCalculator/internal/transport/grpc/orchestrator"
 	api "github.com/OnYyon/gRPCCalculator/internal/transport/rest"
@@ -44,6 +45,7 @@ func (a *App) Run() error {
 	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
 	httpL := m.Match(cmux.HTTP1Fast())
 
+	services.StartResultProcessor(a.manager)
 	go a.runGRPCServer(grpcL)
 	go a.runHTTPServer(ctx, httpL)
 

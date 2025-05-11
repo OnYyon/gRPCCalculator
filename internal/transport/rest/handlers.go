@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"time"
 
 	services "github.com/OnYyon/gRPCCalculator/internal/services/calculate"
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
@@ -43,8 +42,7 @@ func (r *restAPI) AddNewExpression(
 	for _, task := range tasks {
 		r.manager.AddTask(task)
 	}
-	time.Sleep(3 * time.Second)
-	fmt.Println(stack, r.manager.Expressions)
+	r.manager.AddStack(id, stack)
 	if err != nil {
 		return nil, err
 	}

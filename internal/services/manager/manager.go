@@ -10,9 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
+// TODO: с конектить с бд
 type Manager struct {
 	Expressions map[string]*Expression
 	Queque      chan *proto.Task
+	Results     chan *proto.Task
 	DB          *sqlite.Storage
 	mu          sync.Mutex
 }
@@ -20,8 +22,11 @@ type Manager struct {
 type Expression struct {
 	Stack       []string
 	Tasks       map[string]*proto.Task
+	TotalTasks  int
+	Completed   int
 	FinalResult float64
 	AllDone     bool
+	// mu          sync.Mutex
 }
 
 func NewManager(cfg *config.Config) *Manager {
@@ -32,34 +37,49 @@ func NewManager(cfg *config.Config) *Manager {
 	return &Manager{
 		DB:          s,
 		Queque:      make(chan *proto.Task, 100),
+		Results:     make(chan *proto.Task, 100),
 		Expressions: make(map[string]*Expression),
 	}
 }
 
 func NewExpression() *Expression {
 	return &Expression{
-		Tasks:   make(map[string]*proto.Task),
-		Stack:   []string{},
-		AllDone: false,
+		Tasks:      make(map[string]*proto.Task),
+		Stack:      []string{},
+		TotalTasks: 0,
+		Completed:  0,
+		AllDone:    false,
 	}
 }
 
 func (m *Manager) AddTask(task *proto.Task) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	_, have := m.Expressions[task.ExpressionID]
+	if !have {
+		m.Expressions[task.ExpressionID] = NewExpression()
+	}
+	expr := m.Expressions[task.ExpressionID]
+	expr.Tasks[task.ID] = task
+	expr.TotalTasks++
 	m.Queque <- task
 }
 
 func (m *Manager) AddResult(result *proto.Task) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	_, have := m.Expressions[result.ExpressionID]
-	if !have {
-		m.Expressions[result.ExpressionID] = NewExpression()
-	}
+	fmt.Printf("add %v", result)
 	m.Expressions[result.ExpressionID].Tasks[result.ID] = result
+	m.Results <- result
 }
 
+func (m *Manager) AddStack(expID string, stack []string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.Expressions[expID].Stack = stack
+}
+
+// NOTE: нужна или нет вот в чем вопрос
 func (m *Manager) GetResult() *proto.Task {
 	m.mu.Lock()
 	defer m.mu.Unlock()

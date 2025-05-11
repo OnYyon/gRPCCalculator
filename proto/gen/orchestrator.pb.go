@@ -22,15 +22,22 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// TODO: сделать timeout
 type Task struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	Arg1          float64                `protobuf:"fixed64,2,opt,name=Arg1,proto3" json:"Arg1,omitempty"`
-	Arg2          float64                `protobuf:"fixed64,3,opt,name=Arg2,proto3" json:"Arg2,omitempty"`
-	Result        float64                `protobuf:"fixed64,5,opt,name=Result,proto3" json:"Result,omitempty"`
-	Operator      string                 `protobuf:"bytes,6,opt,name=Operator,proto3" json:"Operator,omitempty"`
-	ExpressionID  string                 `protobuf:"bytes,7,opt,name=ExpressionID,proto3" json:"ExpressionID,omitempty"`
-	Have          bool                   `protobuf:"varint,8,opt,name=have,proto3" json:"have,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	ID           string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Arg1         float64                `protobuf:"fixed64,2,opt,name=Arg1,proto3" json:"Arg1,omitempty"`
+	Arg2         float64                `protobuf:"fixed64,3,opt,name=Arg2,proto3" json:"Arg2,omitempty"`
+	Result       float64                `protobuf:"fixed64,5,opt,name=Result,proto3" json:"Result,omitempty"`
+	Operator     string                 `protobuf:"bytes,6,opt,name=Operator,proto3" json:"Operator,omitempty"`
+	ExpressionID string                 `protobuf:"bytes,7,opt,name=ExpressionID,proto3" json:"ExpressionID,omitempty"`
+	Completed    bool                   `protobuf:"varint,8,opt,name=completed,proto3" json:"completed,omitempty"`
+	// Handling error
+	Err           bool   `protobuf:"varint,9,opt,name=err,proto3" json:"err,omitempty"`
+	DescErr       string `protobuf:"bytes,10,opt,name=descErr,proto3" json:"descErr,omitempty"`
+	CreatedAt     int64  `protobuf:"varint,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	RetryCount    int32  `protobuf:"varint,12,opt,name=retryCount,proto3" json:"retryCount,omitempty"`
+	Timeout       int64  `protobuf:"varint,13,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -107,11 +114,46 @@ func (x *Task) GetExpressionID() string {
 	return ""
 }
 
-func (x *Task) GetHave() bool {
+func (x *Task) GetCompleted() bool {
 	if x != nil {
-		return x.Have
+		return x.Completed
 	}
 	return false
+}
+
+func (x *Task) GetErr() bool {
+	if x != nil {
+		return x.Err
+	}
+	return false
+}
+
+func (x *Task) GetDescErr() string {
+	if x != nil {
+		return x.DescErr
+	}
+	return ""
+}
+
+func (x *Task) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *Task) GetRetryCount() int32 {
+	if x != nil {
+		return x.RetryCount
+	}
+	return 0
+}
+
+func (x *Task) GetTimeout() int64 {
+	if x != nil {
+		return x.Timeout
+	}
+	return 0
 }
 
 type IDExpression struct {
@@ -206,15 +248,24 @@ var File_orchestrator_proto protoreflect.FileDescriptor
 
 const file_orchestrator_proto_rawDesc = "" +
 	"\n" +
-	"\x12orchestrator.proto\x12\forchestrator\x1a\x1cgoogle/api/annotations.proto\"\xaa\x01\n" +
+	"\x12orchestrator.proto\x12\forchestrator\x1a\x1cgoogle/api/annotations.proto\"\xb9\x02\n" +
 	"\x04Task\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x12\n" +
 	"\x04Arg1\x18\x02 \x01(\x01R\x04Arg1\x12\x12\n" +
 	"\x04Arg2\x18\x03 \x01(\x01R\x04Arg2\x12\x16\n" +
 	"\x06Result\x18\x05 \x01(\x01R\x06Result\x12\x1a\n" +
 	"\bOperator\x18\x06 \x01(\tR\bOperator\x12\"\n" +
-	"\fExpressionID\x18\a \x01(\tR\fExpressionID\x12\x12\n" +
-	"\x04have\x18\b \x01(\bR\x04have\"\x1e\n" +
+	"\fExpressionID\x18\a \x01(\tR\fExpressionID\x12\x1c\n" +
+	"\tcompleted\x18\b \x01(\bR\tcompleted\x12\x10\n" +
+	"\x03err\x18\t \x01(\bR\x03err\x12\x18\n" +
+	"\adescErr\x18\n" +
+	" \x01(\tR\adescErr\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\v \x01(\x03R\tcreatedAt\x12\x1e\n" +
+	"\n" +
+	"retryCount\x18\f \x01(\x05R\n" +
+	"retryCount\x12\x18\n" +
+	"\atimeout\x18\r \x01(\x03R\atimeout\"\x1e\n" +
 	"\fIDExpression\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\",\n" +
 	"\n" +

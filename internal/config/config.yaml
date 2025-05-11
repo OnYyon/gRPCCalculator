@@ -5,8 +5,13 @@ app:
 server:
   host: "0.0.0.0"
   port: "8080"
-  read_timeout: "10s"
-  write_timeout: "10s"
+  
+  # Можно менять
+  comptuing_power: 13
+  TIME_ADDITION_MS: 100
+  TIME_SUBTRACTION_MS: 100
+  TIME_MULTIPLICATIONS_MS: 300
+  TIME_DIVISIONS_MS: 400
 
 database:
   dbPath: "./storage/calculator.db"

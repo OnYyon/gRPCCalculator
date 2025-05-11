@@ -1,16 +1,15 @@
 package services
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
 )
 
 func StartResultProcessor(m *manager.Manager) {
-	fmt.Println("start processor")
 	go func() {
 		for result := range m.Results {
-			fmt.Println(result)
 			expr, exists := m.Expressions[result.ExpressionID]
 
 			if !exists {
@@ -18,11 +17,14 @@ func StartResultProcessor(m *manager.Manager) {
 
 			}
 
+			if expr.Tasks[result.ID].Err {
+				return
+			}
 			expr.Completed++
 			if expr.Completed == expr.TotalTasks {
 				if len(expr.Stack) == 1 {
 					expr.FinalResult = result.Result
-					fmt.Println(expr.FinalResult)
+					m.DB.UpdateExpression(context.TODO(), result.ExpressionID, result.Result)
 				} else {
 					stack, tasks, err := GenerateTasks(expr.Stack, result.ExpressionID, m)
 					if err != nil {

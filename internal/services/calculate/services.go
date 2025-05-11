@@ -1,12 +1,16 @@
 package services
 
 import (
+	"context"
 	"fmt"
 
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
 )
 
-func ProcessTask(task *proto.Task) (*proto.Task, error) {
+func ProcessTask(ctx context.Context, task *proto.Task) (*proto.Task, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	switch task.Operator {
 	case "+":
 		task.Result = task.Arg1 + task.Arg2

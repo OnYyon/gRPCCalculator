@@ -46,7 +46,7 @@ func (r *restAPI) AddNewExpression(
 	if err != nil {
 		return nil, err
 	}
-	err = r.manager.DB.SaveExpression(context.TODO(), id, id)
+	err = r.manager.DB.SaveExpression(context.TODO(), id, request.Expression)
 	if err != nil {
 		panic(err)
 	}

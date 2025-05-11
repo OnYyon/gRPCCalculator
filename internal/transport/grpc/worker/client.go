@@ -2,8 +2,10 @@ package worker
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	services "github.com/OnYyon/gRPCCalculator/internal/services/calculate"
 	proto "github.com/OnYyon/gRPCCalculator/proto/gen"
@@ -60,12 +62,25 @@ func (w *Worker) Run() error {
 			task, err := w.stream.Recv()
 			if err != nil {
 				return fmt.Errorf("receive error: %w", err)
+
 			}
 			fmt.Printf("get task: %v %v %v\n", task.Arg1, task.Operator, task.Arg2)
-			result, err := services.ProcessTask(task)
+
+			ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(task.Timeout))
+			defer cancel()
+
+			result, err := services.ProcessTask(ctx, task)
 			if err != nil {
-				fmt.Println(task.Arg1, task.Arg2)
-				panic(err)
+				if errors.Is(err, context.DeadlineExceeded) {
+					fmt.Println("timeout")
+					result.DescErr = "timeout"
+					result.Completed = false
+					result.Err = true
+				} else {
+					result.Completed = false
+					result.Err = true
+					result.DescErr = fmt.Sprint(err)
+				}
 			}
 
 			if err := w.stream.Send(result); err != nil {

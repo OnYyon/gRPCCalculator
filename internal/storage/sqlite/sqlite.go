@@ -47,13 +47,26 @@ func (s *Storage) SaveNewUser(
 
 func (s *Storage) SaveExpression(
 	ctx context.Context,
-	expression string,
 	expressionID string,
+	expression string,
 ) error {
+	// TODO: ген user_id из авторизации
 	_, err := s.db.ExecContext(ctx, `
 		INSERT INTO Expressions (user_id, expression, expressionID, status) 
-		VALUES(0, ?, ?, "pending")
-	`, expression, expressionID)
+		VALUES(0, ?, ?, ?)
+	`, expression, expressionID, "processing")
+	return err
+}
+
+func (s *Storage) UpdateExpression(
+	ctx context.Context,
+	expressionID string,
+	result float64,
+) error {
+	_, err := s.db.ExecContext(ctx, `
+		UPDATE Expressions
+		SET result = ?, status = ? WHERE expressionID = ?`,
+		result, "completed", expressionID)
 	return err
 }
 

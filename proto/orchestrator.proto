@@ -14,9 +14,10 @@ service Orchestrator {
           post: "/api/v1/calculate"
           body: "*"
         };
-      }
+    }
 }
 
+// TODO: сделать timeout
 message Task {
     string ID = 1;
     double Arg1 = 2;
@@ -24,7 +25,14 @@ message Task {
     double Result = 5;
     string Operator = 6;
     string ExpressionID = 7;
-    bool last = 8;
+    bool completed = 8;
+
+    // Handling error
+    bool err = 9;
+    string descErr = 10;
+    int64 created_at = 11;
+    int32 retryCount = 12;
+    int64 timeout = 13;
 }
 
 message IDExpression {

@@ -17,6 +17,7 @@ type Manager struct {
 	Results     chan *proto.Task
 	DB          *sqlite.Storage
 	mu          sync.Mutex
+	Cfg         *config.Config
 }
 
 type Expression struct {
@@ -39,6 +40,7 @@ func NewManager(cfg *config.Config) *Manager {
 		Queque:      make(chan *proto.Task, 100),
 		Results:     make(chan *proto.Task, 100),
 		Expressions: make(map[string]*Expression),
+		Cfg:         cfg,
 	}
 }
 

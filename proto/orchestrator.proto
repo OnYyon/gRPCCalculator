@@ -15,6 +15,21 @@ service Orchestrator {
           body: "*"
         };
     }
+
+    // Auth methods
+    rpc Register (AuthRequest) returns (AuthResponse) {
+        option (google.api.http) = {
+          post: "/api/v1/register"
+          body: "*"
+        };
+    }
+    
+    rpc Login (AuthRequest) returns (AuthResponse) {
+        option (google.api.http) = {
+          post: "/api/v1/login"
+          body: "*"
+        };
+    }
 }
 
 // TODO: сделать timeout
@@ -40,4 +55,13 @@ message IDExpression {
 }
 message Expression {
   string expression = 1;
+}
+
+message AuthRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message AuthResponse {
+    string token = 1;
 }

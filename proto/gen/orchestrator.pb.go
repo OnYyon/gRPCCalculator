@@ -244,6 +244,102 @@ func (x *Expression) GetExpression() string {
 	return ""
 }
 
+type AuthRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Login         string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthRequest) Reset() {
+	*x = AuthRequest{}
+	mi := &file_orchestrator_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthRequest) ProtoMessage() {}
+
+func (x *AuthRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_orchestrator_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthRequest.ProtoReflect.Descriptor instead.
+func (*AuthRequest) Descriptor() ([]byte, []int) {
+	return file_orchestrator_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *AuthRequest) GetLogin() string {
+	if x != nil {
+		return x.Login
+	}
+	return ""
+}
+
+func (x *AuthRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type AuthResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthResponse) Reset() {
+	*x = AuthResponse{}
+	mi := &file_orchestrator_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthResponse) ProtoMessage() {}
+
+func (x *AuthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_orchestrator_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthResponse.ProtoReflect.Descriptor instead.
+func (*AuthResponse) Descriptor() ([]byte, []int) {
+	return file_orchestrator_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AuthResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
 var File_orchestrator_proto protoreflect.FileDescriptor
 
 const file_orchestrator_proto_rawDesc = "" +
@@ -272,11 +368,18 @@ const file_orchestrator_proto_rawDesc = "" +
 	"Expression\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x01 \x01(\tR\n" +
-	"expression2\xb0\x01\n" +
+	"expression\"?\n" +
+	"\vAuthRequest\x12\x14\n" +
+	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"$\n" +
+	"\fAuthResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token2\xea\x02\n" +
 	"\fOrchestrator\x128\n" +
 	"\n" +
 	"TaskStream\x12\x12.orchestrator.Task\x1a\x12.orchestrator.Task(\x010\x01\x12f\n" +
-	"\x10AddNewExpression\x12\x18.orchestrator.Expression\x1a\x1a.orchestrator.IDExpression\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/v1/calculateB(Z&github.com/OnYyon/gRPCCalculator/protob\x06proto3"
+	"\x10AddNewExpression\x12\x18.orchestrator.Expression\x1a\x1a.orchestrator.IDExpression\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/v1/calculate\x12^\n" +
+	"\bRegister\x12\x19.orchestrator.AuthRequest\x1a\x1a.orchestrator.AuthResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/v1/register\x12X\n" +
+	"\x05Login\x12\x19.orchestrator.AuthRequest\x1a\x1a.orchestrator.AuthResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/loginB(Z&github.com/OnYyon/gRPCCalculator/protob\x06proto3"
 
 var (
 	file_orchestrator_proto_rawDescOnce sync.Once
@@ -290,19 +393,25 @@ func file_orchestrator_proto_rawDescGZIP() []byte {
 	return file_orchestrator_proto_rawDescData
 }
 
-var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_orchestrator_proto_goTypes = []any{
 	(*Task)(nil),         // 0: orchestrator.Task
 	(*IDExpression)(nil), // 1: orchestrator.IDExpression
 	(*Expression)(nil),   // 2: orchestrator.Expression
+	(*AuthRequest)(nil),  // 3: orchestrator.AuthRequest
+	(*AuthResponse)(nil), // 4: orchestrator.AuthResponse
 }
 var file_orchestrator_proto_depIdxs = []int32{
 	0, // 0: orchestrator.Orchestrator.TaskStream:input_type -> orchestrator.Task
 	2, // 1: orchestrator.Orchestrator.AddNewExpression:input_type -> orchestrator.Expression
-	0, // 2: orchestrator.Orchestrator.TaskStream:output_type -> orchestrator.Task
-	1, // 3: orchestrator.Orchestrator.AddNewExpression:output_type -> orchestrator.IDExpression
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	3, // 2: orchestrator.Orchestrator.Register:input_type -> orchestrator.AuthRequest
+	3, // 3: orchestrator.Orchestrator.Login:input_type -> orchestrator.AuthRequest
+	0, // 4: orchestrator.Orchestrator.TaskStream:output_type -> orchestrator.Task
+	1, // 5: orchestrator.Orchestrator.AddNewExpression:output_type -> orchestrator.IDExpression
+	4, // 6: orchestrator.Orchestrator.Register:output_type -> orchestrator.AuthResponse
+	4, // 7: orchestrator.Orchestrator.Login:output_type -> orchestrator.AuthResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -319,7 +428,7 @@ func file_orchestrator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_orchestrator_proto_rawDesc), len(file_orchestrator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

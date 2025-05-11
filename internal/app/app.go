@@ -12,6 +12,7 @@ import (
 	"github.com/OnYyon/gRPCCalculator/internal/config"
 	services "github.com/OnYyon/gRPCCalculator/internal/services/calculate"
 	"github.com/OnYyon/gRPCCalculator/internal/services/manager"
+	"github.com/OnYyon/gRPCCalculator/internal/transport/grpc/auth"
 	orchestratorGRPC "github.com/OnYyon/gRPCCalculator/internal/transport/grpc/orchestrator"
 	api "github.com/OnYyon/gRPCCalculator/internal/transport/rest"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -22,6 +23,7 @@ import (
 type App struct {
 	cfg     *config.Config
 	manager *manager.Manager
+	auth    *auth.AuthGRPC
 }
 
 func New(cfg *config.Config) *App {
@@ -29,6 +31,7 @@ func New(cfg *config.Config) *App {
 	return &App{
 		cfg:     cfg,
 		manager: mgr,
+		auth:    auth.NewAuthGRPC(mgr),
 	}
 }
 
@@ -54,7 +57,10 @@ func (a *App) Run() error {
 }
 
 func (a *App) runGRPCServer(lis net.Listener) {
-	grpcServer := grpc.NewServer()
+	auth := auth.NewAuthGRPC(a.manager)
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(auth.AuthInterceptor),
+	)
 	orchestratorGRPC.RegisterOrchestratorServer(grpcServer, a.manager)
 
 	if err := grpcServer.Serve(lis); err != nil {
@@ -65,14 +71,17 @@ func (a *App) runGRPCServer(lis net.Listener) {
 
 func (a *App) runHTTPServer(ctx context.Context, lis net.Listener) {
 	mux := runtime.NewServeMux()
-
+	authHandler := api.NewAuthHandler(
+		a.auth,
+		mux,
+		[]string{"/api/v1/register", "/api/v1/login"}).Middleware(mux)
 	if err := api.RegisterOrchestratorGateway(ctx, mux, a.manager); err != nil {
 		log.Printf("Failed to register gateway: %v", err)
 		os.Exit(1)
 	}
 
 	httpServer := &http.Server{
-		Handler: mux,
+		Handler: authHandler,
 	}
 
 	log.Println("Serving gRPC-Gateway on", a.cfg.Server.Host+":"+a.cfg.Server.Port)

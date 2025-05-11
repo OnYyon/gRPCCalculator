@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Orchestrator_TaskStream_FullMethodName       = "/orchestrator.Orchestrator/TaskStream"
 	Orchestrator_AddNewExpression_FullMethodName = "/orchestrator.Orchestrator/AddNewExpression"
+	Orchestrator_Register_FullMethodName         = "/orchestrator.Orchestrator/Register"
+	Orchestrator_Login_FullMethodName            = "/orchestrator.Orchestrator/Login"
 )
 
 // OrchestratorClient is the client API for Orchestrator service.
@@ -30,6 +32,9 @@ type OrchestratorClient interface {
 	TaskStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Task, Task], error)
 	// Rest gateways
 	AddNewExpression(ctx context.Context, in *Expression, opts ...grpc.CallOption) (*IDExpression, error)
+	// Auth methods
+	Register(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	Login(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 }
 
 type orchestratorClient struct {
@@ -63,6 +68,26 @@ func (c *orchestratorClient) AddNewExpression(ctx context.Context, in *Expressio
 	return out, nil
 }
 
+func (c *orchestratorClient) Register(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthResponse)
+	err := c.cc.Invoke(ctx, Orchestrator_Register_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orchestratorClient) Login(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthResponse)
+	err := c.cc.Invoke(ctx, Orchestrator_Login_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrchestratorServer is the server API for Orchestrator service.
 // All implementations must embed UnimplementedOrchestratorServer
 // for forward compatibility.
@@ -70,6 +95,9 @@ type OrchestratorServer interface {
 	TaskStream(grpc.BidiStreamingServer[Task, Task]) error
 	// Rest gateways
 	AddNewExpression(context.Context, *Expression) (*IDExpression, error)
+	// Auth methods
+	Register(context.Context, *AuthRequest) (*AuthResponse, error)
+	Login(context.Context, *AuthRequest) (*AuthResponse, error)
 	mustEmbedUnimplementedOrchestratorServer()
 }
 
@@ -85,6 +113,12 @@ func (UnimplementedOrchestratorServer) TaskStream(grpc.BidiStreamingServer[Task,
 }
 func (UnimplementedOrchestratorServer) AddNewExpression(context.Context, *Expression) (*IDExpression, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddNewExpression not implemented")
+}
+func (UnimplementedOrchestratorServer) Register(context.Context, *AuthRequest) (*AuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedOrchestratorServer) Login(context.Context, *AuthRequest) (*AuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedOrchestratorServer) mustEmbedUnimplementedOrchestratorServer() {}
 func (UnimplementedOrchestratorServer) testEmbeddedByValue()                      {}
@@ -132,6 +166,42 @@ func _Orchestrator_AddNewExpression_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Orchestrator_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrchestratorServer).Register(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Orchestrator_Register_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrchestratorServer).Register(ctx, req.(*AuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Orchestrator_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrchestratorServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Orchestrator_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrchestratorServer).Login(ctx, req.(*AuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Orchestrator_ServiceDesc is the grpc.ServiceDesc for Orchestrator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -142,6 +212,14 @@ var Orchestrator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddNewExpression",
 			Handler:    _Orchestrator_AddNewExpression_Handler,
+		},
+		{
+			MethodName: "Register",
+			Handler:    _Orchestrator_Register_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _Orchestrator_Login_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

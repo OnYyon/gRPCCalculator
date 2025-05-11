@@ -79,3 +79,25 @@ func (s *Storage) GetExpressionByID(
 }
 
 // TODO:
+func (s *Storage) RegisterUser(
+	ctx context.Context,
+	login string,
+	passwordHash []byte,
+) error {
+	_, err := s.db.ExecContext(ctx, `
+		INSERT INTO Users (username, password_hash)
+		VALUES (?, ?)`, login, passwordHash,
+	)
+	return err
+}
+
+func (s *Storage) GetUser(
+	ctx context.Context,
+	login string,
+) ([]byte, error) {
+	var row []byte
+	err := s.db.QueryRowContext(ctx, `
+		SELECT password_hash FROM Users WHERE username = ?`, login,
+	).Scan(&row)
+	return row, err
+}

@@ -55,11 +55,7 @@ graph TD
 git clone https://github.com/OnYyon/gRPCCalculator.git
 cd gRPCCalculator
 docker-compose up --build
-```
-илл если просто надо поднять контейнера(без повторной сборки, не для первого запуска)
-```bash
-docker-compose up --build
-```
+
 #### 2. Вручную (три терминала)
 
 ```bash

@@ -73,7 +73,7 @@ go run cmd/worker/main.go
 go run web/main.go
 ```
 
-После запуска откройте Web Interface на [`http://0.0.0.0:8081`](http://0.0.0.0:8081)
+После запуска откройте Web Interface на [`http://localhost:8081`](http://localhost:8081)
 
 ---
 

@@ -9,6 +9,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/OnYyon/gRPCCalculator/internal/config"
 	"github.com/OnYyon/gRPCCalculator/internal/transport/grpc/worker"
 )
 
@@ -18,7 +19,11 @@ func main() {
 
 	var wg sync.WaitGroup
 	var workers sync.Map
-	for i := 0; i < 3; i++ {
+	cfg, err := config.Load("./internal/config/config.yaml")
+	if err != nil {
+		panic("don`t have config")
+	}
+	for i := 0; i < cfg.Server.ComputingPower; i++ {
 		wg.Add(1)
 		fmt.Println("worker start - ", i)
 		go func(i int) {

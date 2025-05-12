@@ -13,7 +13,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 
-	apiHandler := handlers.NewAPIHandler("http://0.0.0.0:" + "8080")
+	apiHandler := handlers.NewAPIHandler("http://orchestrator:" + "8080")
 
 	r.HandleFunc("/", apiHandler.HomeHandler).Methods("GET")
 	r.HandleFunc("/login", apiHandler.LoginHandler).Methods("GET", "POST")

@@ -22,7 +22,7 @@ git clone https://github.com/OnYyon/GoroutineRPNServer.git
 cd GoroutineRPNServer
 ```
 Запуск
-три отдельных окна терминала
+1. Три отдельных окна терминала
 ```
 go run cmd/orchestrator/main.go  
 ```
@@ -31,6 +31,10 @@ go run cmd/worker/main.go
 ```
 ```
 go run web/main.go 
+```
+2. Docker-compose
+```
+docker-compose up --build 
 ```
 >ВАЖНО: Ждем запуска программ
 > Будет выведнно:

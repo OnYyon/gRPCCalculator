@@ -29,15 +29,15 @@ func NewWorker() (*Worker, error) {
 
 	for i := 0; i < 3; i++ {
 		conn, err = grpc.NewClient(
-			"localhost:8080",
+			"orchestrator:8080",
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		)
 		if err == nil {
 			break
 		}
 
-		waitTime := time.Second * time.Duration(i+1)
-		log.Printf("Connection attempt %d failed, retrying in %v: %v", i+1, waitTime, err)
+		waitTime := time.Second * time.Duration(i+3)
+		log.Printf("Connection attempt %d failed, retrying in %v: %v", i+3, waitTime, err)
 		time.Sleep(waitTime)
 	}
 
@@ -46,12 +46,25 @@ func NewWorker() (*Worker, error) {
 		return nil, fmt.Errorf("failed to connect after 3 attempts: %w", err)
 	}
 
-	client := proto.NewOrchestratorClient(conn)
-	stream, err := client.TaskStream(ctx)
+	var client proto.OrchestratorClient
+	var stream proto.Orchestrator_TaskStreamClient
+
+	for i := 0; i < 3; i++ {
+		client = proto.NewOrchestratorClient(conn)
+		stream, err = client.TaskStream(ctx)
+		if err == nil {
+			break
+		}
+
+		waitTime := time.Second * time.Duration(i+3)
+		log.Printf("Stream creation attempt %d failed, retrying in %v: %v", i+3, waitTime, err)
+		time.Sleep(waitTime)
+	}
+
 	if err != nil {
 		conn.Close()
 		cancel()
-		return nil, fmt.Errorf("failed to create stream: %w", err)
+		return nil, fmt.Errorf("failed to create stream after 3 attempts: %w", err)
 	}
 
 	return &Worker{
@@ -62,6 +75,7 @@ func NewWorker() (*Worker, error) {
 		cancel: cancel,
 	}, nil
 }
+
 func (w *Worker) Run() error {
 	defer w.cleanup()
 

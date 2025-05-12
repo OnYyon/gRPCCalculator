@@ -42,6 +42,7 @@ func (a *App) Run() error {
 	defer cancel()
 
 	lis, err := net.Listen("tcp", a.cfg.Server.Host+":"+a.cfg.Server.Port)
+	fmt.Println(err)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %v", err)
 	}
@@ -71,7 +72,6 @@ func (a *App) runGRPCServer(lis net.Listener) {
 }
 
 func (a *App) runHTTPServer(ctx context.Context, lis net.Listener) {
-	mainMux := http.NewServeMux()
 	mux := runtime.NewServeMux(runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
 		md := metadata.MD{}
 		if authHeader := req.Header.Get("Authorization"); authHeader != "" {
@@ -87,15 +87,9 @@ func (a *App) runHTTPServer(ctx context.Context, lis net.Listener) {
 		log.Printf("Failed to register gateway: %v", err)
 		os.Exit(1)
 	}
-	fs := http.FileServer(http.Dir("./static"))
-	mainMux.Handle("/api/", authHandler)
-	mainMux.Handle("/static/", http.StripPrefix("/static/", fs))
-	mainMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./templates/index.html")
-	})
 
 	httpServer := &http.Server{
-		Handler: mainMux,
+		Handler: authHandler,
 	}
 
 	log.Println("Serving gRPC-Gateway on", a.cfg.Server.Host+":"+a.cfg.Server.Port)

@@ -52,11 +52,14 @@ graph TD
 #### 1. Через Docker Compose (рекомендуется)
 
 ```bash
-git clone https://github.com/OnYyon/GoroutineRPNServer.git
-cd GoroutineRPNServer
+git clone https://github.com/OnYyon/gRPCCalculator.git
+cd gRPCCalculator
 docker-compose up --build
 ```
-
+илл если просто надо поднять контейнера(без повторной сборки, не для первого запуска)
+```bash
+docker-compose up --build
+```
 #### 2. Вручную (три терминала)
 
 ```bash

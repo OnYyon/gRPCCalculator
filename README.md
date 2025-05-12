@@ -54,7 +54,8 @@ graph TD
 ```bash
 git clone https://github.com/OnYyon/gRPCCalculator.git
 cd gRPCCalculator
-docker-compose up --build
+docker-compose up
+```
 
 #### 2. Вручную (три терминала)
 

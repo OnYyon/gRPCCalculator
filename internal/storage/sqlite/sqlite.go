@@ -136,7 +136,6 @@ func (s *Storage) GetExpressionList(
 	return expressions, nil
 }
 
-// TODO:
 func (s *Storage) RegisterUser(
 	ctx context.Context,
 	login string,

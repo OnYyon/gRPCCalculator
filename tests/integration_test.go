@@ -28,7 +28,7 @@ func startServerFromRoot(t *testing.T) *exec.Cmd {
 	err := cmd.Start()
 	require.NoError(t, err)
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(13 * time.Second)
 	return cmd
 }
 

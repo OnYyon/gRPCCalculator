@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO: с конектить с бд
 type Manager struct {
 	Expressions map[string]*Expression
 	Queque      chan *proto.Task

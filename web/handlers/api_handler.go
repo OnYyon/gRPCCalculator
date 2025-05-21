@@ -63,7 +63,7 @@ func (h *APIHandler) renderTemplate(w http.ResponseWriter, name string, data int
 }
 
 func (h *APIHandler) HomeHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/expressions", http.StatusSeeOther)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (h *APIHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {

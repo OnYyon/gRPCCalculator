@@ -18,7 +18,8 @@ func StartResultProcessor(m *manager.Manager) {
 			}
 
 			if expr.Tasks[result.ID].Err {
-				return
+				m.AddError(result)
+				continue
 			}
 			expr.Completed++
 			if expr.Completed == expr.TotalTasks {

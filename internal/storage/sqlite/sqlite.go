@@ -158,3 +158,14 @@ func (s *Storage) GetUser(
 	).Scan(&row)
 	return row, err
 }
+
+func (s *Storage) AddError(
+	ctx context.Context,
+	expID string,
+) error {
+	_, err := s.db.ExecContext(ctx, `
+		UPDATE Expressions SET status = "error" 
+		WHERE expressionID = ?`, expID,
+	)
+	return err
+}

@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -26,6 +27,7 @@ type Expression struct {
 	Completed   int
 	FinalResult float64
 	AllDone     bool
+	Err         bool
 	// mu          sync.Mutex
 }
 
@@ -50,6 +52,7 @@ func NewExpression() *Expression {
 		TotalTasks: 0,
 		Completed:  0,
 		AllDone:    false,
+		Err:        false,
 	}
 }
 
@@ -69,9 +72,18 @@ func (m *Manager) AddTask(task *proto.Task) {
 func (m *Manager) AddResult(result *proto.Task) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	fmt.Printf("add %v", result)
 	m.Expressions[result.ExpressionID].Tasks[result.ID] = result
 	m.Results <- result
+}
+
+func (m *Manager) AddError(result *proto.Task) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.Expressions[result.ExpressionID].Err = true
+	err := m.DB.AddError(context.TODO(), result.ExpressionID)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (m *Manager) AddStack(expID string, stack []string) {

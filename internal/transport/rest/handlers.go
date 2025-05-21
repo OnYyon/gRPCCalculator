@@ -83,7 +83,6 @@ func (r *restAPI) Login(
 	return &proto.AuthResponse{Token: tokenString}, nil
 }
 
-// TODO: улучшить струткру.
 func (r *restAPI) AddNewExpression(
 	ctx context.Context,
 	request *proto.Expression,

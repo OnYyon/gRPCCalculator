@@ -56,7 +56,11 @@ git clone https://github.com/OnYyon/gRPCCalculator.git
 cd gRPCCalculator
 docker-compose up --build
 ```
-
+При **повторном** запуске просто воспользуйтесь
+Только тогда отсануться данные в бд
+```bash
+docker-compose up
+```
 #### 2. Вручную (три терминала)
 
 ```bash
